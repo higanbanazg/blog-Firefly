@@ -5,8 +5,7 @@
 import fs from "node:fs/promises";
 import { transformSync } from "esbuild";
 import { glob } from "glob";
-
-const DIST_DIR = "dist";
+import { DIST_DIR } from "./dist-dir";
 
 // <script ...>...</script>，惰性匹配内容，属性里不允许出现 >
 const SCRIPT_RE = /<script([^>]*)>([\s\S]*?)<\/script>/gi;

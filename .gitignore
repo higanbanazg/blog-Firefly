@@ -1,6 +1,9 @@
 # build output
 dist/
 
+# wrangler 本地状态（wrangler dev / deploy 生成，不应提交）
+.wrangler/
+
 # generated vndb covers
 public/vndb-covers/
 

@@ -7,8 +7,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { glob } from "glob";
 import { live2dWidgetConfig, spineModelConfig } from "../src/config";
-
-const DIST_DIR = "dist";
+import { DIST_DIR } from "./dist-dir";
 
 // 看板娘资源根目录（相对 dist/），两种看板娘都关掉时整个删掉
 const PIO_ROOT = "pio";
