@@ -1,8 +1,27 @@
 {
-	"name": "firefly",
+	// Worker 名称。必须与 Cloudflare 后台里 Worker 的名称完全一致，否则
+	// Workers Builds 构建会直接失败。这里跟仓库名 blog-Firefly 对齐，
+	// 后台创建时用默认推导值即可。改名会创建新 Worker，旧的不会自动删除。
+	"name": "blog-firefly",
+
 	"compatibility_date": "2025-01-01",
-	"compatibility_flags": ["nodejs_compat"],
-	"assets": {
-		"directory": "./dist"
+
+	// nodejs_compat: 让 Worker 运行时提供 node:* API（Astro 与部分依赖需要）
+	// global_fetch_strictly_public: 按 Astro 官方指南建议开启，让 Worker 里的 fetch()
+	//   走公网 DNS 解析，而不是被内部回环到自己身上
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+
+	// 在 Cloudflare 后台查看 Worker 运行日志与异常，排查线上问题必备
+	"observability": {
+		"enabled": true
 	}
+
+	// 注意：这里刻意不写 main 和 assets。
+	// @astrojs/cloudflare 会读取本文件，注入 main: "entry.mjs" 和
+	// assets: { directory: "../client", binding: "ASSETS" }，然后输出一份完整配置到
+	// dist/server/wrangler.json —— 部署时要用那一份（wrangler deploy -c dist/server/wrangler.json）。
+	// 在这里写死 main/assets 只会被覆盖，还会误导人。
+	//
+	// 也刻意不设 assets.not_found_handling：保持默认值 "none"，静态资源未命中的请求
+	// 才会回落到 Worker。一旦设成 "404-page"，按需渲染的路由将永远收不到请求。
 }

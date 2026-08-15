@@ -1,8 +1,11 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches: [ master ]
+  # 本站部署走 Cloudflare Workers，不再使用 GitHub Pages，因此关掉 push 自动触发
+  # ——否则每次推送都会跑一遍并失败（仓库未启用 Pages），给你刷失败邮件。
+  # 想恢复成 Pages 镜像站的话，把下面两行的注释去掉即可。
+  # push:
+  #   branches: [ master ]
   workflow_dispatch:
 
 # Pages 部署需要的权限
