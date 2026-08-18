@@ -86,8 +86,11 @@ export const siteConfig: SiteConfig = {
 		stickyNavbar: true,
 	},
 
-	// 站点开始日期，用于统计运行天数
-	siteStartDate: "2025-01-01",
+	// 站点开始日期，用于统计运行天数（侧边栏「站点统计」组件里的"已运行 N 天"）
+	// 原值 2025-01-01 是主题自带的示例日期。这里改成本站真正上线的时刻。
+	// 组件里是 new Date(siteStartDate) 直接解析，所以完整 ISO 时间戳同样可用；
+	// 带 +08:00 偏移量是为了让不同时区的访客算出同一个天数。
+	siteStartDate: "2026-08-18T23:20:27+08:00",
 
 	// 站点时区（IANA 时区字符串），用于格式化bangumi、rss里的构建日期时间等等..
 	// 示例："Asia/Shanghai", "UTC", 如果为空，则按照构建服务器的时区进行时区转换
