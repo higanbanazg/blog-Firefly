@@ -11,6 +11,16 @@
 	//   走公网 DNS 解析，而不是被内部回环到自己身上
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 
+	// 关闭 blog-firefly.higanbanazg.workers.dev 这个 workers.dev 子域。
+	// 不写这一项时 wrangler 按默认值 true 处理，于是每次部署都会重新打开它 ——
+	// 在后台手动关掉也没用，下一次推送又会回来。本站只走自定义域名
+	// blog.ipfox.cc，workers.dev 那份等于同一个站的第二个公开入口。
+	"workers_dev": false,
+
+	// 关闭 <版本号>-blog-firefly.higanbanazg.workers.dev 这类版本预览地址。
+	// 同样默认为 true，每次部署都会生成一个新的、对外可访问的预览 URL。
+	"preview_urls": false,
+
 	// 在 Cloudflare 后台查看 Worker 运行日志与异常，排查线上问题必备
 	"observability": {
 		"enabled": true
