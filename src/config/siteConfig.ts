@@ -15,19 +15,13 @@ export const siteConfig: SiteConfig = {
 	site_url: "https://blog.ipfox.cc",
 
 	// 站点描述
-	description:
-		"Firefly 是一款基于 Astro 框架和 Fuwari 模板开发的清新美观且现代化个人博客主题模板，专为技术爱好者和内容创作者设计。该主题融合了现代 Web 技术栈，提供了丰富的功能模块和高度可定制的界面，让您能够轻松打造出专业且美观的个人博客网站。",
+	// 会进 <meta name="description">、OpenGraph 和 RSS，搜索引擎直接抓这段。
+	// 原值是主题自身的推广文案（介绍 Firefly 主题有多好用），和本站内容无关，已替换。
+	description: "higanbana 的个人博客，记录技术笔记、项目实践与日常。",
 
 	// 站点关键词
-	keywords: [
-		"Firefly",
-		"Fuwari",
-		"Astro",
-		"ACGN",
-		"博客",
-		"技术博客",
-		"静态博客",
-	],
+	// 原值里的 Firefly / Fuwari 是主题名，不是本站主题内容，已去掉。
+	keywords: ["higanbana", "个人博客", "技术博客", "Astro"],
 
 	// 主题色
 	themeColor: {
