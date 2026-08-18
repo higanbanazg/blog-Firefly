@@ -23,6 +23,12 @@ export const booknavPageConfig: BooknavPageConfig = {
 
 // 书签导航配置
 // 每个数组项是一个分类组，分类组内的 items 是该分类下的书签
+//
+// 相对主题默认配置的改动：
+//   - 开发：只保留 GitHub，删掉 MDN / Astro / Svelte / Tailwind CSS
+//   - 设计、工具：原样保留
+//   - 项目（只有一条 CuteLeaf/Firefly）、资源（Firefly Docs + 作者博客）：
+//     整个分类删除，里面全是主题作者自己的链接
 export const booknavConfig: BooknavGroup[] = [
 	{
 		id: "dev",
@@ -39,46 +45,6 @@ export const booknavConfig: BooknavGroup[] = [
 				// 也可以使用图片 URL 和本地图片路径
 				// 不填则会通过接口自动获取目标站点的 favicon 图标（需要在上面配置）
 				icon: "fa7-brands:github",
-				weight: 10,
-			},
-			{
-				title: "MDN Web Docs",
-				url: "https://developer.mozilla.org",
-				desc: "最权威的 Web 技术文档",
-				weight: 9,
-			},
-			{
-				title: "Astro",
-				url: "https://astro.build",
-				desc: "内容驱动型网站的 Web 框架",
-				weight: 8,
-			},
-			{
-				title: "Svelte",
-				url: "https://svelte.dev",
-				desc: "把组件编译成高效原生 JS 的框架",
-				weight: 7,
-			},
-			{
-				title: "Tailwind CSS",
-				url: "https://tailwindcss.com",
-				desc: "一个功能强大且灵活的 CSS 框架",
-				weight: 6,
-			},
-		],
-	},
-	{
-		id: "opensource",
-		name: "项目",
-		icon: "material-symbols:code-rounded",
-		desc: "好用的开源项目",
-		weight: 90,
-		items: [
-			{
-				title: "Firefly",
-				url: "https://github.com/CuteLeaf/Firefly",
-				desc: "清晰美观的 Astro 个人博客主题模板",
-				icon: "/favicon/firefly-32.png",
 				weight: 10,
 			},
 		],
@@ -128,28 +94,6 @@ export const booknavConfig: BooknavGroup[] = [
 				url: "https://carbon.now.sh",
 				desc: "把代码片段生成漂亮的图片",
 				weight: 8,
-			},
-		],
-	},
-	{
-		id: "resources",
-		name: "资源",
-		icon: "material-symbols:auto-stories-outline-rounded",
-		desc: "文档、教程与阅读",
-		weight: 70,
-		items: [
-			{
-				title: "Firefly Docs",
-				url: "https://docs-firefly.cuteleaf.cn",
-				desc: "Firefly 主题模板文档",
-				icon: "https://docs-firefly.cuteleaf.cn/logo.png",
-				weight: 10,
-			},
-			{
-				title: "夏夜流萤",
-				url: "https://blog.cuteleaf.cn",
-				desc: "飞萤之火自无梦的长夜亮起",
-				weight: 9,
 			},
 		],
 	},
