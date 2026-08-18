@@ -93,24 +93,14 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		url: "#",
 		icon: "material-symbols:link",
 		// 子菜单
+		// 原本三条（GitHub / Gitee / Firefly文档）全部指向主题作者 cuteleaf 的仓库
+		// 和文档站。Gitee 与 Firefly文档 已删除，GitHub 改为本站自己的仓库。
 		children: [
 			{
 				name: "GitHub",
-				url: "https://github.com/CuteLeaf/Firefly",
+				url: "https://github.com/higanbanazg/blog-Firefly",
 				external: true,
 				icon: "fa7-brands:github",
-			},
-			{
-				name: "Gitee",
-				url: "https://gitee.com/CuteLeaf/Firefly",
-				external: true,
-				icon: "fa7-brands:gitee",
-			},
-			{
-				name: "Firefly文档",
-				url: "https://docs-firefly.cuteleaf.cn",
-				external: true,
-				icon: "material-symbols:docs",
 			},
 		],
 	});

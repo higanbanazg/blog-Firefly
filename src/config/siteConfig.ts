@@ -102,13 +102,17 @@ export const siteConfig: SiteConfig = {
 		// 留言板页面开关，需要配置评论系统
 		guestbook: true,
 		// 番组计划页面开关，含追番、游戏、书籍和音乐
-		bangumi: true,
-		// VNDB页面开关。
-		vndb: true,
+		// 已关闭：原配置用的是主题作者的 Bangumi 账号，页面等于在本站公开他的
+		// 追番/读书/游戏记录。关闭后该页返回 404，导航栏"我的"里的入口也会
+		// 自动隐藏（见 components/layout/Navbar.astro 对 pageKey 的处理）。
+		bangumi: false,
+		// VNDB页面开关。已关闭，同上。
+		vndb: false,
 		// 相册页面开关
 		gallery: true,
 		// 追番页面开关
-		anime: true,
+		// 已关闭：原配置用的是主题作者的 Bilibili UID。
+		anime: false,
 		// 动态页面开关
 		dynamic: true,
 		// 书签导航页面开关
@@ -210,10 +214,11 @@ export const siteConfig: SiteConfig = {
 		generateOgImages: false,
 	},
 
-	// bangumi配置
+	// bangumi配置（页面已在上方 pages.bangumi 关闭）
 	bangumi: {
 		// Bangumi用户ID
-		userId: "1143164",
+		// 原值 "1143164" 是主题作者的账号，已清空。要启用本页请先填自己的 ID。
+		userId: "",
 		// 数据模式：static=构建时获取，dynamic=客户端实时获取
 		// static 模式在构建时获取数据并静态渲染，部署后数据不更新
 		// dynamic 模式在浏览器中实时请求 API，始终显示最新数据
@@ -254,10 +259,11 @@ export const siteConfig: SiteConfig = {
 
 	// 追番配置（Bilibili + TMDB）
 	anime: {
-		// Bilibili 配置
+		// Bilibili 配置（页面已在上方 pages.anime 关闭）
 		bilibili: {
 			// 你的 Bilibili 用户 UID
-			uid: "38932988",
+			// 原值 "38932988" 是主题作者的 UID，已清空。要启用本页请先填自己的。
+			uid: "",
 		},
 		// TMDB 配置（可选，需要翻墙）
 		// tmdb: {
