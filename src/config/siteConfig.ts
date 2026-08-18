@@ -101,17 +101,20 @@ export const siteConfig: SiteConfig = {
 		sponsor: true,
 		// 留言板页面开关，需要配置评论系统
 		guestbook: true,
+		// ⚠️ bangumi / vndb / anime 三项：页面源文件已经从 src/pages/ 删除，
+		//    把这里改回 true 不会让页面回来，只会让导航栏冒出三个指向 404 的入口。
+		//    删除原因：这三页原本用的是主题作者的 Bangumi 账号(1143164) 和
+		//    Bilibili UID(38932988)，等于在本站公开他的追番/读书/游戏记录。
+		//    要恢复：git show 0a552fd:src/pages/bangumi.astro > src/pages/bangumi.astro
+		//    （anime.astro、vndb.astro 同理），再把对应开关改成 true 并填自己的账号。
+		//
 		// 番组计划页面开关，含追番、游戏、书籍和音乐
-		// 已关闭：原配置用的是主题作者的 Bangumi 账号，页面等于在本站公开他的
-		// 追番/读书/游戏记录。关闭后该页返回 404，导航栏"我的"里的入口也会
-		// 自动隐藏（见 components/layout/Navbar.astro 对 pageKey 的处理）。
 		bangumi: false,
-		// VNDB页面开关。已关闭，同上。
+		// VNDB页面开关
 		vndb: false,
 		// 相册页面开关
 		gallery: true,
 		// 追番页面开关
-		// 已关闭：原配置用的是主题作者的 Bilibili UID。
 		anime: false,
 		// 动态页面开关
 		dynamic: true,
