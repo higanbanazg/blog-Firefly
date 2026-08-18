@@ -616,11 +616,17 @@ const siteLang = lang.replace("_", "-");
     <!-- 页面顶部渐变高光效果 - 只在full和semifull模式下显示 -->
     {shouldShowTopHighlight && <div class="top-gradient-highlight" />}
     <ConfigCarrier />
-    <MusicManager />
+    {/* 播放器引擎。原本无条件渲染，导致 musicConfig 里两个开关都关掉之后，
+        整段播放器脚本连同曲目路径、Meting 歌单 ID、第三方 API 地址仍然内联在
+        每个页面里（只是没人调用 init）。加上和下面 MusicPlayerView 相同的条件。 */}
+    {(musicPlayerConfig.showInNavbar || musicPlayerConfig.showInSidebar !== false) && (
+      <MusicManager />
+    )}
     <slot />
 
-    <!-- 播放器视图脚本：必须在 <slot /> 之后（解析到它时所有 widget 的 DOM 要已存在），
-         且在 MusicManager 之后（swup 重跑按文档顺序，window.__fireflyMusic 得先就位） -->
+    {/* 播放器视图脚本：必须在 <slot /> 之后（解析到它时所有 widget 的 DOM 要已存在），
+        且在 MusicManager 之后（swup 重跑按文档顺序，window.__fireflyMusic 得先就位）。
+        这里用 Astro 注释而不是 HTML 注释：HTML 注释会原样输出到每个页面里。 */}
     {(musicPlayerConfig.showInNavbar || musicPlayerConfig.showInSidebar !== false) && (
       <MusicPlayerView />
     )}

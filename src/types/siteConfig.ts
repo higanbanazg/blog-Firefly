@@ -51,7 +51,7 @@ export type SiteConfig = {
 	};
 
 	// 站点开始日期，用于计算运行天数
-	siteStartDate?: string; // 格式: "YYYY-MM-DD"
+	siteStartDate?: string; // 格式: "YYYY-MM-DD"，或带时间的 ISO 串 "YYYY-MM-DDTHH:mm:ss+08:00"
 
 	// 可选：站点时区，使用 IANA 时区标识，例如 "Asia/Shanghai"、"UTC"
 	timezone?: string;
