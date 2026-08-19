@@ -23,7 +23,10 @@ export const profileConfig: ProfileConfig = {
 	// ⚠️ 主题自带的 qq / GitHub / Email 三条原本全部指向主题作者 cuteleaf 本人
 	//    （qq 群 qm.qq.com/q/ZGsFa8qX2G、github.com/CuteLeaf、xiaye@msn.com）。
 	//    邮箱那条尤其要命：页面只做了 base64 混淆防爬虫，读者点信封图标仍会正常
-	//    唤起邮件客户端寄给作者。qq 一条已整块移除，GitHub 和 Email 换成本站站长的。
+	//    唤起邮件客户端寄给作者。qq 一条已整块移除，GitHub 换成本站站长的，
+	//    Email 整条换成了 Telegram（友链页的申请渠道也一并改成同一个账号）。
+	//    注：Profile.astro 只对 mailto: 开头的链接做 base64 混淆，https:// 链接
+	//    走普通 <a target="_blank"> 分支，所以这里换掉之后不再有邮箱可被爬。
 	links: [
 		{
 			name: "GitHub",
@@ -32,9 +35,9 @@ export const profileConfig: ProfileConfig = {
 			showName: false,
 		},
 		{
-			name: "Email",
-			icon: "fa7-solid:envelope",
-			url: "mailto:higanbanazg@gmail.com",
+			name: "Telegram",
+			icon: "fa7-brands:telegram",
+			url: "https://t.me/higshop_bot",
 			showName: false,
 		},
 		{
