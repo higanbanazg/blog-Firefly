@@ -59,6 +59,42 @@ html.is-page-transitioning .banner-home-text-overlay {
     }
 }
 
+/* 滚筒文字：只开一行高的窗口，轨道向上位移一行就换成下一句。
+   窗口必须 overflow:hidden，否则两句会同时露出来。 */
+.banner-roller {
+    overflow: hidden;
+    /* 和主标题一样做小屏兰截，防止大字号溢出 */
+    font-size: min(var(--banner-roller-size, 3rem), 10vw);
+    font-weight: bold;
+    line-height: 1.35;
+    /* 窗口高度恰好一行，必须跟 .banner-roller-line 保持一致 */
+    height: 1.35em;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    font-family: var(--font-banner-title, inherit);
+}
+
+.banner-roller-track {
+    display: flex;
+    flex-direction: column;
+    /* transform 由 BannerRoller.astro 的脚本设置（百分比相对轨道自身高度） */
+    will-change: transform;
+}
+
+.banner-roller-line {
+    flex: 0 0 auto;
+    height: 1.35em;
+    line-height: 1.35;
+    /* 句子不允许换行，换行会把轨道擑高导致位移对不上 */
+    white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+    .banner-roller {
+        font-size: min(var(--banner-roller-size, 3rem), 10vw);
+    }
+}
+
 /* 系统开了“减弱动画”时直接淡入，不做位移和缩放 */
 @media (prefers-reduced-motion: reduce) {
     .banner-title,

@@ -19,6 +19,14 @@ export type BackgroundWallpaperConfig = {
 			subtitle?: string | string[]; // 副标题，支持单个字符串或字符串数组
 			titleSize?: string; // 主标题字体大小，如 "3.5rem"
 			subtitleSize?: string; // 副标题字体大小，如 "1.5rem"
+			// 滚筒文字：同一行位置里逐句向上滚动切换，启用后代替 title / subtitle
+			roller?: {
+				enable: boolean; // 是否启用滚筒效果
+				lines: string[]; // 依次滚动显示的句子
+				hold?: number; // 每句停留时间（毫秒）
+				duration?: number; // 单次滚动时长（毫秒）
+				loop?: boolean; // 滚到最后一句后是否绕回第一句继续
+			};
 			typewriter?: {
 				enable: boolean; // 是否启用打字机效果
 				speed: number; // 打字速度（毫秒）
