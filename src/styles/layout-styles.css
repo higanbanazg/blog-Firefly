@@ -20,19 +20,11 @@ html.is-page-transitioning .banner-home-text-overlay {
 
 /* Banner text styles */
 
-/* 首页横幅入场动画：上下向中间滑入 → 汇合后整体放大
-   上句从上方落下、下句从下方升上，两行在中间相遇，然后整块文字一起
-   缩放到正常大小定格。缩放加在共同父容器上，两行才会作为一个整体
-   同步放大；如果分别给两行加 scale，它们会各自围绕自己的中心散开。 */
-.banner-home-text-stack {
-    animation: banner-zoom-in 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
-    /* 避免缩放过程中文字发歪 */
-    will-change: transform;
-}
-
+/* 首页横幅入场动画：上句从上方落下、下句从下方升上。
+   （之前还在父容器上叠了一层整体缩放，已去掉：git show 91a5cac） */
 .banner-title {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-    animation: banner-slide-in-down 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: banner-slide-in-down 1s cubic-bezier(0.33, 1, 0.68, 1) 0.12s both;
     font-weight: bold;
     /* 防止大字体标题溢出容器 */
     overflow-wrap: break-word;
@@ -41,14 +33,14 @@ html.is-page-transitioning .banner-home-text-overlay {
 
 .banner-subtitle {
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
-    animation: banner-slide-in-up 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: banner-slide-in-up 1s cubic-bezier(0.33, 1, 0.68, 1) 0.12s both;
 }
 
 /* 位移用 em，距离跟着字号走，手机上字小了幅度也会自动变小 */
 @keyframes banner-slide-in-down {
     from {
         opacity: 0;
-        transform: translateY(-0.9em);
+        transform: translateY(-1.6em);
     }
     to {
         opacity: 1;
@@ -59,7 +51,7 @@ html.is-page-transitioning .banner-home-text-overlay {
 @keyframes banner-slide-in-up {
     from {
         opacity: 0;
-        transform: translateY(1.8em);
+        transform: translateY(2.4em);
     }
     to {
         opacity: 1;
@@ -67,26 +59,8 @@ html.is-page-transitioning .banner-home-text-overlay {
     }
 }
 
-/* 0% 到 44% 保持缩小，把时间让给上下两行先滑进来；
-   之后再放大，才是“先滚动、然后放大”的先后顺序。 */
-@keyframes banner-zoom-in {
-    0% {
-        transform: scale(0.82);
-    }
-    44% {
-        transform: scale(0.82);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
 /* 系统开了“减弱动画”时直接淡入，不做位移和缩放 */
 @media (prefers-reduced-motion: reduce) {
-    .banner-home-text-stack {
-        animation: none;
-    }
-
     .banner-title,
     .banner-subtitle {
         animation: banner-fade-in 0.3s ease-out both;
