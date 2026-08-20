@@ -4,7 +4,10 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	// 壁纸模式："banner" 横幅壁纸，"fullscreen" 全屏壁纸，"overlay" 全屏透明，"none" 纯色背景无壁纸
 	mode: "banner",
 	// 是否启用背景视频播放，配置后将在导航栏显示视频播放按钮
-	playerEnable: true,
+	// 已关闭：原本的背景视频是主题作者图床上的一段流萤（崩坏：星穹铁道）视频，
+	// 既有版权顾虑，又是对第三方服务器的热链（对方一撤文件本站就白屏一块）。
+	// 想启用的话，把自己的视频放进 public/assets/videos/，再把下面 playerUrl 填上并改回 true。
+	playerEnable: false,
 	/**
 	 * 背景图片配置
 	 * 图片路径支持三种格式：
@@ -55,12 +58,14 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			"assets/images/MobileWallpaper/m4.avif",
 			"assets/images/MobileWallpaper/m5.avif",
 			"assets/images/MobileWallpaper/m6.avif",
+			"assets/images/MobileWallpaper/m7.avif",
 		],
 		// 背景视频播放地址
 		// 支持单个视频路径（字符串）或多个视频循环（数组，参考上面壁纸配置）
 		// 支持远程视频URL，本地视频请放在 public/assets/videos/ 目录下
-		// playerUrl: "/assets/videos/firefly.mp4",
-		playerUrl: "https://bed.twoleaf.cn/file/1785658612716_firefly.mp4",
+		// 原值 https://bed.twoleaf.cn/file/1785658612716_firefly.mp4 已清空，原因见上面 playerEnable。
+		// 换成自己的视频后填这里，例如："/assets/videos/my-video.mp4"
+		playerUrl: "",
 	},
 	// 横幅壁纸和全屏壁纸共享配置
 	common: {
