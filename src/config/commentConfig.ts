@@ -54,13 +54,15 @@ export const commentConfig: CommentConfig = {
 	//giscus评论系统配置
 	giscus: {
 		// 设置 Giscus 评论系统仓库
-		repo: "CuteLeaf/Firefly",
+		repo: "higanbanazg/blog-Firefly",
 		// 设置 Giscus 评论系统仓库ID
-		repoId: "R_kgD2gfdFGd",
+		repoId: "R_kgDOT5bPYg",
 		// 设置 Giscus 评论系统分类
 		category: "General",
 		// 获取 Giscus 评论系统分类ID
-		categoryId: "DIC_kwDOKy9HOc4CegmW",
+		// 留空代表还没拿到：需要仓库开启 Discussions 并安装 giscus App 之后，
+		// 从 https://giscus.app/api/discussions/categories?repo=higanbanazg/blog-Firefly 取。
+		categoryId: "",
 		// 获取 Giscus 评论系统映射方式
 		mapping: "title",
 		// 获取 Giscus 评论系统严格模式
@@ -80,6 +82,7 @@ export const commentConfig: CommentConfig = {
 	//disqus评论系统配置
 	disqus: {
 		// 获取 Disqus 评论系统
-		shortname: "firefly",
+		// 原值 "firefly" 是主题作者的 Disqus 站点，已清空；要用 Disqus 就填自己的 shortname。
+		shortname: "",
 	},
 };
