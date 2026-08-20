@@ -65,22 +65,14 @@ const buildPlatform = detectBuildPlatform({
 	unknownBuildPlatform,
 });
 
-// 系统信息（平台 + 架构）
-const platformMap: Record<string, string> = {
-	win32: "Windows",
-	darwin: "macOS",
-	linux: "Linux",
-	freebsd: "FreeBSD",
-};
-const archMap: Record<string, string> = {
-	x64: "x86_64",
-	arm64: "ARM64",
-	arm: "ARM",
-	ia32: "x86",
-};
-const osName = platformMap[process.platform] || process.platform;
-const archName = archMap[process.arch] || process.arch;
-const systemInfo = `${osName} / ${archName}`;
+// 原来这里有一段「系统信息」，取 process.platform / process.arch 拼成
+// "Linux / x86_64" 显示在侧栏。本站是 Cloudflare Workers 部署，没有自己的
+// 服务器，那两个值实际上是构建容器的操作系统和架构，跟站点运行环境无关，
+// 挂在「站点信息」里会让人误以为是自有服务器，所以整段去掉。
+// 构建平台一项（显示 "Cloudflare Workers"）是准确的，保留。
+// 要找回原文：git show 0e90e80:src/components/widget/SiteInfo.astro
+// i18n 的 siteInfoSystem 键位保留未删，各语言文件里仍有对应文案，
+// 以后想恢复直接加回 detailItems 即可。
 
 // 站点域名（去掉协议前缀）
 const siteDomain = siteConfig.site_url
@@ -149,12 +141,6 @@ const detailItems: {
 		icon: "material-symbols:build-outline",
 		label: i18n(I18nKey.siteInfoBuildTime),
 		value: buildTime,
-		fullWidth: true,
-	},
-	{
-		icon: "material-symbols:computer-outline",
-		label: i18n(I18nKey.siteInfoSystem),
-		value: systemInfo,
 		fullWidth: true,
 	},
 ];
