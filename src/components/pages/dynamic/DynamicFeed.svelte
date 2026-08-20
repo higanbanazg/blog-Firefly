@@ -38,6 +38,10 @@ interface Props {
 	allYearsText: string;
 	timezone: string;
 	memos?: MemosConfig;
+	// 构建期就取到的动态数据。本地数据源（非 Memos、apiUrl 非外链）时由
+	// /dynamic/ 页面直接传进来，此时组件不再发 fetch，也不显示加载中。
+	// 留 undefined 表示数据得在运行时取（Memos / 第三方接口）。
+	initialEntries?: DynamicData[];
 }
 
 const {
@@ -50,15 +54,16 @@ const {
 	allYearsText,
 	timezone,
 	memos,
+	initialEntries,
 }: Props = $props();
 
-let entries = $state<DynamicData[]>([]);
-let filtered = $state<DynamicData[]>([]);
+let entries = $state<DynamicData[]>(initialEntries ?? []);
+let filtered = $state<DynamicData[]>(initialEntries ?? []);
 let currentPage = $state(1);
-let loading = $state(true);
+let loading = $state(!initialEntries);
 let failed = $state(false);
 let templateReady = $state(false);
-let list: HTMLElement;
+let list: HTMLElement | null = null;
 let template: HTMLTemplateElement | null = null;
 let searchInput: HTMLInputElement | null = null;
 let yearSelect: HTMLSelectElement | null = null;
@@ -274,7 +279,10 @@ $effect(() => {
 onMount(() => {
 	registerDynamicGallery();
 	registerDynamicInlineComments();
-	const page = list.closest(".dynamic-page");
+	const page = document.querySelector(".dynamic-page");
+	// .dynamic-feed 现在由 /dynamic/ 页面渲染（构建期就带着第一页内容），
+	// 不再是本组件的一部分，所以这里查出来接管，而不是 bind:this。
+	list = page?.querySelector<HTMLElement>(".dynamic-feed") ?? null;
 	template =
 		page?.querySelector<HTMLTemplateElement>("[data-dynamic-item-template]") ??
 		null;
@@ -289,12 +297,17 @@ onMount(() => {
 
 	const load = async () => {
 		try {
-			if (memos?.enable) {
-				entries = await fetchMemos(memos.apiUrl, { parent: memos.parent });
-			} else {
-				const response = await fetch(source);
-				if (!response.ok) throw new Error(`HTTP ${response.status}`);
-				entries = (await response.json()) as DynamicData[];
+			// initialEntries 已经是完整数据，不用再走一趟网络。
+			// 这里没有 await，下面的筛选/分页会在 onMount 内同步跑完，
+			// 服务端渲染出来的那批条目不会被清空再重建。
+			if (!initialEntries) {
+				if (memos?.enable) {
+					entries = await fetchMemos(memos.apiUrl, { parent: memos.parent });
+				} else {
+					const response = await fetch(source);
+					if (!response.ok) throw new Error(`HTTP ${response.status}`);
+					entries = (await response.json()) as DynamicData[];
+				}
 			}
 			// 更新页面计数
 			const countEl = document.querySelector("[data-dynamic-page-count]");
@@ -344,8 +357,6 @@ onMount(() => {
 		<p>{noResultsText}</p>
 	</div>
 {/if}
-
-<div class="dynamic-feed" bind:this={list}></div>
 
 {#if !loading && !failed}
 	<ClientPagination

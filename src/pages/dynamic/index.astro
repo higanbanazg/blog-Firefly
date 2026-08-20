@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import DynamicEntry from "@/components/pages/dynamic/DynamicEntry.astro";
 import DynamicFeed from "@/components/pages/dynamic/DynamicFeed.svelte";
 import DynamicItemTemplate from "@/components/pages/dynamic/DynamicItemTemplate.astro";
 import { commentConfig, dynamicConfig, siteConfig } from "@/config";
@@ -7,6 +8,7 @@ import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import "@/styles/dynamic.css";
+import { getDynamicEntries } from "@/utils/dynamic-data";
 import { url } from "@/utils/url-utils";
 
 if (!siteConfig.pages.dynamic) {
@@ -26,6 +28,22 @@ const dataUrl = dynamicConfig.apiUrl?.startsWith("http")
 	? dynamicConfig.apiUrl
 	: url(dynamicConfig.apiUrl || "/api/dynamic.json");
 const memos = dynamicConfig.memos;
+
+// 本地数据源时在构建期就把条目取出来，直接渲染进 HTML。
+// 以前这里什么都不渲染，浏览器要先下 JS、hydrate、再 fetch /api/dynamic.json
+// 才能看到第一条动态，中间一直是转圈。Memos 或第三方 apiUrl 是运行时数据，
+// 构建期拿不到，那两种情况仍然走原来的客户端请求。
+const isLocalSource =
+	!memos?.enable && !dynamicConfig.apiUrl?.startsWith("http");
+const entries = isLocalSource ? await getDynamicEntries() : [];
+// 首屏只渲染第一页；其余分页照旧由 DynamicFeed 克隆 <template> 生成。
+const firstPage = entries.slice(0, itemsPerPage);
+// 和 DynamicFeed 的 populateYears() 保持同样口径（UTC 年份、按出现顺序去重）
+const years = [
+	...new Set(
+		entries.map((entry) => new Date(entry.published).getUTCFullYear()),
+	),
+];
 ---
 
 <MainGridLayout title={title} description={description}>
@@ -46,7 +64,7 @@ const memos = dynamicConfig.memos;
 					aria-label={i18n(I18nKey.dynamic)}
 				>
 					<Icon is:inline name="material-symbols:dynamic-feed-rounded" />
-					<strong data-dynamic-page-count>0</strong>
+					<strong data-dynamic-page-count>{entries.length}</strong>
 					<span>{i18n(I18nKey.dynamic)}</span>
 				</div>
 				<div class="dynamic-filter">
@@ -62,11 +80,18 @@ const memos = dynamicConfig.memos;
 						<Icon is:inline name="material-symbols:calendar-month-rounded" />
 						<select data-year-select aria-label={i18n(I18nKey.year)}>
 							<option value="all">{i18n(I18nKey.dynamicAllYears)}</option>
+							{years.map((year) => <option value={year}>{year}</option>)}
 						</select>
 						<Icon is:inline name="material-symbols:arrow-drop-down-rounded" />
 					</label>
 				</div>
 			</header>
+
+			<div class="dynamic-feed">
+				{firstPage.map((entry) => (
+					<DynamicEntry entry={entry} showComments={showInlineComments} />
+				))}
+			</div>
 
 			<DynamicFeed
 				client:load
@@ -79,6 +104,7 @@ const memos = dynamicConfig.memos;
 				allYearsText={i18n(I18nKey.dynamicAllYears)}
 				timezone={siteConfig.timezone || "UTC"}
 				{memos}
+				initialEntries={isLocalSource ? entries : undefined}
 			/>
 
 			<DynamicItemTemplate />

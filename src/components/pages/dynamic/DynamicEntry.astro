@@ -1,0 +1,133 @@
+---
+import { Icon } from "astro-icon/components";
+import ImageWrapper from "@/components/common/ImageWrapper.astro";
+import DynamicGallery from "@/components/pages/dynamic/DynamicGallery.astro";
+import DynamicInlineComments from "@/components/pages/dynamic/DynamicInlineComments.astro";
+import { dynamicConfig, profileConfig, siteConfig } from "@/config";
+import I18nKey from "@/i18n/i18nKey";
+import { i18n } from "@/i18n/translation";
+import { formatTimezoneOffset } from "@/utils/date-utils";
+import type { DynamicEntryData } from "@/utils/dynamic-data";
+import { dynamicAnchor } from "@/utils/dynamic-utils";
+import { url } from "@/utils/url-utils";
+
+// 一条动态的标记，两种用法共用同一份结构：
+//   1. 不传 entry —— 渲染空壳，由 DynamicItemTemplate.astro 包进 <template>，
+//      给 DynamicFeed.svelte 的 createItem() 克隆后填值（翻页/搜索/筛选走这条）。
+//   2. 传 entry  —— 构建期直接渲染成带内容的真实条目，写进 /dynamic/ 的 HTML，
+//      首屏无需等 JS 就能看到正文。
+// 两条路径必须产出同样的 DOM，否则 hydrate 重建时会闪一下。所以结构只写这一份，
+// 改这里等于同时改掉两边。对应的客户端填值逻辑见 DynamicFeed.svelte 的 createItem()。
+interface Props {
+	entry?: DynamicEntryData;
+	showComments?: boolean;
+}
+
+const { entry, showComments = false } = Astro.props;
+
+const profileLabel = i18n(I18nKey.dynamicProfile).replace(
+	"{name}",
+	profileConfig.name,
+);
+const profileUrl = url(dynamicConfig.profileUrl || "/about/");
+
+const timezone = siteConfig.timezone || "UTC";
+// createItem() 用的是 document.documentElement.lang，即 Layout.astro 里的
+// siteConfig.lang.replace("_", "-")，这里保持一致，避免两边日期格式不同。
+const siteLang = siteConfig.lang.replace("_", "-");
+
+const anchorId = entry ? dynamicAnchor(entry.id) : undefined;
+const contentId = anchorId ? `${anchorId}-content` : undefined;
+const authorId = anchorId ? `${anchorId}-author` : undefined;
+const published = entry ? new Date(entry.published) : undefined;
+// 构建期不知道访问者带的 ?page= 和 hash，只按第一页的裸地址生成；
+// hydrate 后 createItem() 会用真实 location 重写这个 href。
+const permalink = anchorId ? `${url("/dynamic/")}#${anchorId}` : undefined;
+const publishedText = published
+	? `${new Intl.DateTimeFormat(siteLang, {
+			timeZone: timezone,
+			year: "numeric",
+			month: "2-digit",
+			day: "2-digit",
+			hour: "2-digit",
+			minute: "2-digit",
+			second: "2-digit",
+		}).format(published)} ${formatTimezoneOffset(timezone, published)}`
+	: undefined;
+const location = entry?.location?.trim() || "";
+---
+
+<dynamic-entry
+	id={anchorId}
+	class="dynamic-entry card-base"
+	data-dynamic-entry
+	data-year={published ? String(published.getUTCFullYear()) : undefined}
+>
+	<article aria-labelledby={authorId}>
+		<header class="dynamic-entry-header">
+			<a href={profileUrl} class="dynamic-avatar" aria-label={profileLabel}>
+				<ImageWrapper
+					src={profileConfig.avatar || ""}
+					alt={profileConfig.name}
+					widths={[96]}
+					sizes="48px"
+					loading="lazy"
+					fadeIn={false}
+				/>
+			</a>
+			<div class="dynamic-identity">
+				<a href={profileUrl} class="dynamic-author" aria-label={profileLabel}>
+					<strong data-dynamic-author id={authorId}>{profileConfig.name}</strong>
+				</a>
+				<div class="dynamic-meta">
+					<a
+						class="dynamic-time"
+						data-dynamic-permalink
+						href={permalink}
+						data-no-swup={permalink ? "" : undefined}
+					>
+						<time data-dynamic-time datetime={published?.toISOString()}
+							>{publishedText}</time
+						>
+					</a>
+					<span
+						class="dynamic-location"
+						data-dynamic-location
+						title={location || undefined}
+						hidden={!location}
+					>
+						<Icon is:inline name="material-symbols:location-on-rounded" />
+						<span data-dynamic-location-text>{location}</span>
+					</span>
+				</div>
+			</div>
+			<span class="dynamic-pinned-badge" data-dynamic-pinned hidden={!entry?.pinned}>
+				<Icon is:inline name="material-symbols:push-pin" class="size-3" />
+				{i18n(I18nKey.pinned)}
+			</span>
+			<span class="dynamic-entry-decoration" aria-hidden="true">
+				<Icon is:inline name="material-symbols:format-quote-rounded" />
+			</span>
+		</header>
+
+		<div class="dynamic-content custom-md" data-dynamic-content id={contentId}>
+			{entry && <Fragment set:html={entry.html} />}
+			{entry?.images.map((image) => (
+				<img
+					src={image.src}
+					alt={image.alt}
+					loading="lazy"
+					title={image.title || undefined}
+				/>
+			))}
+		</div>
+		<DynamicGallery sourceId={contentId || "dynamic-template-content"} />
+		{(!entry || showComments) && (
+			<DynamicInlineComments
+				src={entry
+					? `/dynamic/comments/?path=${encodeURIComponent(`/dynamic/${entry.id}/`)}`
+					: ""}
+			/>
+		)}
+	</article>
+</dynamic-entry>
