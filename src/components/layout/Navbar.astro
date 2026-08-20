@@ -146,7 +146,12 @@ const logoVariants = await Promise.all(
                     "flex flex-row items-center text-md",
                     siteConfig.navbar.followTheme ? "text-(--primary)" : "dark:text-white text-black"
                 ]} style="font-family: var(--font-navbar-title, inherit)">
-                                    {logoConfig?.type === "icon" ? (
+                                    {/* siteConfig.navbar.logo 整项没配置时不渲染任何图标，
+                                        导航栏左上角只留标题文字。原本这里会掉进最后那个
+                                        else 分支，顶出一个 material-symbols:home-pin-outline
+                                        定位图钉，看着像是特意设的图标。配了 logo 但解析不出
+                                        图片（路径写错等）时仍然保留图钉作为兜底提示。 */}
+                                    {!logoConfig ? null : logoConfig.type === "icon" ? (
                                         <Icon is:inline name={logoConfig.value || "material-symbols:home-pin-outline"} class="navbar-logo text-[1.75rem] mb-1 mr-2" />
                                     ) : logoIsImage && logoVariants.length > 0 ? (
                                         logoVariants.map((variant) => variant.image ? (
