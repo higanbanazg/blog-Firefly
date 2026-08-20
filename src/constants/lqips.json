@@ -1,7 +1,5 @@
 {
   "src:assets/images/avatar.avif": "dcd8d5d1cecabea9a9",
-  "public:gallery/firefly-2026/cover.avif": "7588a28a8f989e8d88",
-  "public:gallery/firefly-2026/1.avif": "c8bca9dde6d2babfb5",
   "src:assets/images/DesktopWallpaper/d6.avif": "d9e5ec9ca7aebda9b0",
   "src:assets/images/DesktopWallpaper/d5.avif": "e2dbe0e1dae1d9c9cd",
   "src:assets/images/DesktopWallpaper/d4.avif": "727991b7a7bbe2b8c2",
@@ -22,6 +20,8 @@
   "src:content/posts/images/firefly2.avif": "7588a28a8f989e8d88",
   "src:content/posts/images/firefly1.avif": "d4d7e5cdc4d7baaec9",
   "src:content/posts/images/docusaurus.avif": "445347e2e8e3e8e4dc",
-  "src:assets/images/logo/firefly-light.png": "000000000000000000",
-  "src:assets/images/logo/firefly-dark.png": "ffffffffffffffffff"
+  "public:gallery/wallpaper/2.avif": "866e5c9d7c64826a51",
+  "public:gallery/wallpaper/1.avif": "345c9a5f71ad9b9eb1",
+  "public:gallery/daily-life/2.avif": "c7cad7cfced48e8563",
+  "public:gallery/daily-life/1.avif": "3c4e3969824b526147"
 }

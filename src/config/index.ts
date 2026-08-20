@@ -7,10 +7,6 @@ export type {
 	AnalyticsConfig,
 	AnnouncementConfig,
 	BackgroundWallpaperConfig,
-	BooknavFaviconConfig,
-	BooknavGroup,
-	BooknavItem,
-	BooknavPageConfig,
 	CommentConfig,
 	CoverImageConfig,
 	DisplaySettingsConfig,
@@ -45,7 +41,6 @@ export { analyticsConfig } from "./analyticsConfig"; // 统计分析配置
 export { announcementConfig } from "./announcementConfig"; // 公告配置
 // 样式配置
 export { backgroundWallpaper } from "./backgroundWallpaper"; // 背景壁纸配置
-export { booknavConfig, booknavPageConfig } from "./booknavConfig"; // 书签导航配置
 // 功能配置
 export { commentConfig } from "./commentConfig"; // 评论系统配置
 export { coverImageConfig } from "./coverImageConfig"; // 封面图配置

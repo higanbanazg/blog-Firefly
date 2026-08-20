@@ -67,43 +67,17 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 
 			// 番组计划
 			LinkPresets.Bangumi,
-
-			// 书签导航
-			LinkPresets.Booknav,
 		],
 	});
 
-	// 关于及其子菜单
-	links.push({
-		name: "关于",
-		url: "#",
-		icon: "material-symbols:info",
-		children: [
-			// 打赏
-			LinkPresets.Sponsor,
+	// 关于
+	// 原本是个二级菜单（打赏 + 关于我）。打赏页已整体移除，只剩一项的菜单没有存在
+	// 意义，这里改成直接指向 /about/ 的一级链接。
+	links.push(LinkPresets.About);
 
-			// 关于页面
-			LinkPresets.About,
-		],
-	});
-
-	// 自定义导航栏链接
-	links.push({
-		name: "链接",
-		url: "#",
-		icon: "material-symbols:link",
-		// 子菜单
-		// 原本三条（GitHub / Gitee / Firefly文档）全部指向主题作者 cuteleaf 的仓库
-		// 和文档站。Gitee 与 Firefly文档 已删除，GitHub 改为本站自己的仓库。
-		children: [
-			{
-				name: "GitHub",
-				url: "https://github.com/higanbanazg/blog-Firefly",
-				external: true,
-				icon: "fa7-brands:github",
-			},
-		],
-	});
+	// 「链接」二级菜单（只有一条 GitHub，指向本站仓库）已整体移除。
+	// 要加回来：links.push({ name: "链接", url: "#", icon: "material-symbols:link",
+	//   children: [{ name: "GitHub", url: "...", external: true, icon: "fa7-brands:github" }] });
 
 	// 文档链接
 	// links.push({
@@ -158,12 +132,6 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		icon: "material-symbols:link-2-rounded",
 		pageKey: "friends",
 	},
-	Sponsor: {
-		name: "打赏",
-		url: "/sponsor/",
-		icon: "material-symbols:favorite",
-		pageKey: "sponsor",
-	},
 	Guestbook: {
 		name: "留言",
 		url: "/guestbook/",
@@ -171,7 +139,7 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		pageKey: "guestbook",
 	},
 	About: {
-		name: "关于我",
+		name: "关于",
 		url: "/about/",
 		icon: "material-symbols:person",
 	},
@@ -198,12 +166,6 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		url: "/anime/",
 		icon: "material-symbols:live-tv",
 		pageKey: "anime",
-	},
-	Booknav: {
-		name: "书签导航",
-		url: "/booknav/",
-		icon: "material-symbols:bookmarks",
-		pageKey: "booknav",
 	},
 };
 

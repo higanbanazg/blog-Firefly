@@ -6,10 +6,15 @@ const SITE_LANG = "zh_CN";
 
 export const siteConfig: SiteConfig = {
 	// 站点标题
-	title: "higanbana",
+	// 浏览器标签页标题就是这个：首页显示 title（副标题非空时是「title - subtitle」），
+	// 内页显示「页面名 - title」。同时进 og:site_name、RSS 频道标题。
+	// 注意它和导航栏左上角那行字是两回事，那行由下面 navbar.title 单独控制。
+	title: "higanbana blog",
 
 	// 站点副标题
-	subtitle: "demo",
+	// 只在 Layout.astro 拼标签页标题时用到，别处没有引用。
+	// 留空是为了让首页标签页正好显示「higanbana blog」，而不是「higanbana blog - demo」。
+	subtitle: "",
 
 	// 站点 URL
 	site_url: "https://blog.ipfox.cc",
@@ -46,15 +51,16 @@ export const siteConfig: SiteConfig = {
 
 	// Favicon 配置
 	// 如果启用了OpenGraph图片功能，数组中需要包含png格式的favicon图标
+	// 原值是主题自带的流萤图标 firefly-32.png，已换成本站自己的图标。
+	// 源图 D:\AI\手机壁纸\图标.png 是 128x85 的横图，居中裁成正方形后
+	// 生成 32/128/180/192 四档；短边只有 85px，180 和 192 两档是放大的，
+	// 想要更清晰就拿一张 ≥192px 的方图重新生成。
+	// 大尺寸放在前面：og 图片生成时取数组里第一个 png 当站点图标。
 	favicon: [
-		{
-			// 图标文件路径
-			src: "/favicon/firefly-32.png",
-			// 可选，指定主题 'light' | 'dark'
-			// theme: "light",
-			// 可选，图标大小
-			// sizes: "32x32",
-		},
+		{ src: "/favicon/higanbana-192.png", sizes: "192x192" },
+		{ src: "/favicon/higanbana-180.png", sizes: "180x180" },
+		{ src: "/favicon/higanbana-128.png", sizes: "128x128" },
+		{ src: "/favicon/higanbana-32.png", sizes: "32x32" },
 	],
 
 	// 导航栏配置
@@ -68,12 +74,11 @@ export const siteConfig: SiteConfig = {
 		// image 和 url 类型可额外设置 valueDark，用于暗色模式下显示另一张图片，不设置则亮暗色共用 value
 		// 例如: { type: "image", value: "assets/images/logo.png", valueDark: "assets/images/logo-dark.png", alt: "Logo" }
 		// 使用 Astro 图标库时不需要设置 valueDark，图标会自动跟随主题亮暗色切换
-		logo: {
-			type: "image",
-			value: "assets/images/logo/firefly-light.png",
-			valueDark: "assets/images/logo/firefly-dark.png",
-			alt: "🍀",
-		},
+		// 不配置 logo = 导航栏左上角只显示下面的 title 文字，前面不带任何图标。
+		// 原值是主题自带的流萤图标 assets/images/logo/firefly-{light,dark}.png
+		// （图片文件也一并删了）。要加回图标就把下面这段的注释去掉并换成自己的图。
+		// logo: { type: "image", value: "assets/images/logo/xxx.png", alt: "Logo" },
+		//
 		// 导航栏标题
 		title: "higanbana",
 		// 全宽导航栏，导航栏是否占满屏幕宽度
@@ -101,7 +106,10 @@ export const siteConfig: SiteConfig = {
 		// 友链页面开关
 		friends: true,
 		// 打赏页面开关
-		sponsor: true,
+		// ⚠️ 和 bangumi/vndb/anime 一样：src/pages/sponsor.astro 已删除，
+		//    改回 true 只会让导航栏多出一个 404 入口。
+		//    要恢复：git show 6adcd64:src/pages/sponsor.astro > src/pages/sponsor.astro
+		sponsor: false,
 		// 留言板页面开关，需要配置评论系统
 		guestbook: true,
 		// ⚠️ bangumi / vndb / anime 三项：页面源文件已经从 src/pages/ 删除，
@@ -122,7 +130,9 @@ export const siteConfig: SiteConfig = {
 		// 动态页面开关
 		dynamic: true,
 		// 书签导航页面开关
-		booknav: true,
+		// ⚠️ 页面、配置(booknavConfig.ts)、工具(booknav-utils.ts)、类型都已删除，
+		//    改回 true 不会让页面回来。要恢复得整套 git 还原到 6adcd64。
+		booknav: false,
 	},
 
 	// 分类导航栏开关，在首页和归档页顶部显示分类快捷导航
