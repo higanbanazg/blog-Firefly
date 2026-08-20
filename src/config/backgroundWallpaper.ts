@@ -88,21 +88,6 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			titleSize: "4.5rem",
 			// 主页横幅副标题
 			subtitle: ["人和人要重逢"],
-			// 滚筒文字（启用后会代替上面的 title / subtitle）
-			// 先显示第一句，停留 hold 毫秒后整行向上滚动换成下一句。
-			// 字号跟着上面的 titleSize 走。
-			roller: {
-				enable: true,
-				lines: ["山和山不相遇", "人和人要重逢"],
-				// 每句停留时间（毫秒）。首屏壁纸解码大约要占掉开头半秒，
-				// 这里留得多一点，保证滚动发生时页面已经稳定、能看到。
-				hold: 2200,
-				// 单次滚动时长（毫秒）
-				duration: 700,
-				// 滚到最后一句后是否绕回第一句一直转。
-				// 这句是上下句，停在“人和人要重逢”才算说完，所以默认不循环。
-				loop: false,
-			},
 			// 主页横幅副标题字体大小
 			subtitleSize: "1.5rem",
 			typewriter: {
