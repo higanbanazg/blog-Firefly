@@ -168,10 +168,14 @@ function createItem(entry: DynamicData) {
 				minute: "2-digit",
 			});
 		} else {
+			// timeZone 必须用站点时区：下面紧接着会补一个
+			// formatTimezoneOffset(timezone) 标签（本站是 UTC+8），原来这里写死
+			// "UTC" 等于按 UTC 取数字却标 UTC+8。详见 date-utils.ts
+			// formatDynamicDate 上面的说明。
 			time.textContent = new Intl.DateTimeFormat(
 				document.documentElement.lang || undefined,
 				{
-					timeZone: "UTC",
+					timeZone: timezone,
 					year: "numeric",
 					month: "2-digit",
 					day: "2-digit",
