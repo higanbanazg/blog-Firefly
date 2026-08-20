@@ -110,8 +110,6 @@ export const siteConfig: SiteConfig = {
 		//    改回 true 只会让导航栏多出一个 404 入口。
 		//    要恢复：git show 6adcd64:src/pages/sponsor.astro > src/pages/sponsor.astro
 		sponsor: false,
-		// 留言板页面开关，需要配置评论系统
-		guestbook: true,
 		// ⚠️ bangumi / vndb / anime 三项：页面源文件已经从 src/pages/ 删除，
 		//    把这里改回 true 不会让页面回来，只会让导航栏冒出三个指向 404 的入口。
 		//    删除原因：这三页原本用的是主题作者的 Bangumi 账号(1143164) 和

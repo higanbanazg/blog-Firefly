@@ -51,8 +51,6 @@ export const ja: Translation = {
 	[Key.commentSection]: "コメント欄",
 	[Key.commentSubtitle]: "あなたの考えを共有し、みんなと議論しましょう",
 	[Key.commentNotConfigured]: "コメントシステムが設定されていません",
-	[Key.guestbookCommentHint]:
-		"設定ファイルでコメントシステムをまだ有効にしていません。有効にすると、訪問者がここにメッセージを残せるようになります",
 	[Key.friends]: "友達",
 	[Key.friendsDescription]:
 		"ここは私の友達です、お互いに訪問して交流することを歓迎します",
@@ -62,9 +60,6 @@ export const ja: Translation = {
 	[Key.booknavDescription]: "便利なサイトをカテゴリ別に集めました",
 	[Key.searchBooknav]: "ブックマークを検索...",
 	[Key.booknavEmpty]: "ブックマークがありません",
-	[Key.guestbook]: "ゲストブック",
-	[Key.guestbookDescription]:
-		"ここに足跡を残して、あなたの考えや提案を共有してください",
 	[Key.untitled]: "無題",
 	[Key.uncategorized]: "未分類",
 	[Key.noTags]: "タグなし",

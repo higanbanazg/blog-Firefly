@@ -82,7 +82,6 @@ export type SiteConfig = {
 		booknav: boolean; // 书签导航页面开关
 		friends: boolean; // 友链页面开关
 		sponsor: boolean; // 打赏页面开关
-		guestbook: boolean; // 留言板页面开关
 		bangumi: boolean;
 		vndb: boolean;
 		gallery: boolean; // 相册页面开关

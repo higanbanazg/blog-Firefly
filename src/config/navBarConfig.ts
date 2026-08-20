@@ -33,19 +33,10 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		],
 	});
 
-	//社交及其子菜单
-	links.push({
-		name: "社交",
-		url: "#",
-		icon: "material-symbols:group",
-		children: [
-			// 友链
-			LinkPresets.Friends,
-
-			// 留言
-			LinkPresets.Guestbook,
-		],
-	});
+	// 友链
+	// 原本是一个叫“社交”的二级菜单（友链 + 留言）。留言板已整体移除，
+	// 只剩一项的菜单没有存在意义，这里改成直接指向 /friends/ 的一级链接。
+	links.push(LinkPresets.Friends);
 
 	// 我的及其子菜单
 	links.push({
@@ -131,12 +122,6 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		url: "/friends/",
 		icon: "material-symbols:link-2-rounded",
 		pageKey: "friends",
-	},
-	Guestbook: {
-		name: "留言",
-		url: "/guestbook/",
-		icon: "material-symbols:chat",
-		pageKey: "guestbook",
 	},
 	About: {
 		name: "关于",

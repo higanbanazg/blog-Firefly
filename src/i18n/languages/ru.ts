@@ -51,8 +51,6 @@ export const ru: Translation = {
 	[Key.commentSection]: "Комментарии",
 	[Key.commentSubtitle]: "Поделитесь своими мыслями и обсудите с остальными",
 	[Key.commentNotConfigured]: "Система комментариев не настроена",
-	[Key.guestbookCommentHint]:
-		"Вы еще не включили систему комментариев в файле конфигурации. После включения посетители смогут оставлять сообщения здесь",
 	[Key.friends]: "Ссылки",
 	[Key.friendsDescription]:
 		"Вот мои друзья, добро пожаловать посетить и общаться друг с другом",
@@ -63,9 +61,6 @@ export const ru: Translation = {
 		"Подборка полезных сайтов, сгруппированных по категориям.",
 	[Key.searchBooknav]: "Поиск закладок...",
 	[Key.booknavEmpty]: "Закладок пока нет.",
-	[Key.guestbook]: "Гостевая книга",
-	[Key.guestbookDescription]:
-		"Добро пожаловать, оставьте свой след здесь, поделитесь своими мыслями и предложениями",
 	[Key.untitled]: "Без названия",
 	[Key.uncategorized]: "Без категории",
 	[Key.noTags]: "Нет тегов",

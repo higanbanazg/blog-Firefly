@@ -26,8 +26,8 @@ export const friendsPageConfig: FriendsPageConfig = {
 export const friendsConfig: FriendLink[] = [
 	{
 		title: "higanbana",
-		imgurl: "https://github.com/higanbanazg.png",
-		desc: "demo",
+		imgurl: "https://blog.ipfox.cc/favicon/higanbana-192.png",
+		desc: "higanbana的随记分享",
 		siteurl: "https://blog.ipfox.cc",
 		tags: ["Blog"],
 		weight: 10, // 权重，数字越大排序越靠前
