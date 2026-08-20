@@ -59,10 +59,21 @@ export function formatDateI18nWithTime(dateInput: Date | string): string {
 	return formatDateI18n(dateInput, true);
 }
 
+// 动态时间格式化，输出 YYYY-MM-DD HH:mm:ss。
+// 调用方（DynamicItem.astro / DynamicSidebar.svelte）会在后面接一个
+// formatTimezoneOffset(siteConfig.timezone) 算出来的「UTC+8」标签，所以这里
+// 必须按同一个时区取墙上时间。原来这里写死 timeZone: "UTC"，等于「按 UTC
+// 取数字，却标上 UTC+8」，两边对不上。
+//
+// 之所以原来看着是对的：主题的动态 frontmatter 写的是不带偏移量的
+// "2026-08-20 17:23:13"，YAML 按 UTC 解析，时刻本身就已经错了 8 小时，
+// 再用 UTC 格式化正好把数字还原回去 —— 两个错误互相抵消。现在
+// scripts/new-dynamic.js 已改为输出带 +08:00 的完整 ISO 串，时刻是对的，
+// 这里也必须跟着按站点时区格式化。
 export function formatDynamicDate(dateInput: Date | string): string {
 	const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
 	const parts = new Intl.DateTimeFormat("en-CA", {
-		timeZone: "UTC",
+		timeZone: siteConfig.timezone || "UTC",
 		year: "numeric",
 		month: "2-digit",
 		day: "2-digit",

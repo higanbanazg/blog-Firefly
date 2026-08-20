@@ -22,13 +22,6 @@ export const galleryConfig: GalleryConfig = {
 			date: "2026-08-20",
 			tags: ["日常", "生活"],
 		},
-		{
-			id: "wallpaper",
-			name: "桌面壁纸",
-			description: "在用的几张桌面壁纸。",
-			date: "2026-08-20",
-			tags: ["壁纸", "桌面"],
-		},
 	],
 
 	// 瀑布流最小列宽(px)，浏览器根据容器宽度自动计算列数，默认 240
