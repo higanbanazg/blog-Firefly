@@ -78,25 +78,28 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			// 是否启用主页横幅文字
 			enable: true,
 			// 主页横幅主标题
-			title: "Lovely firefly!",
+			// 原值 "Lovely firefly!" 和下面 6 条英文副标题，都是《崩坏：星穹铁道》
+			// 里流萤的角色台词，和本站内容无关且有版权顾虑，已整体替换。
+			// 要找回原文：git show 5a2f785:src/config/backgroundWallpaper.ts
+			// 这句话在逗号处拆成两行：上句当主标题（大字），下句当副标题（小字）。
+			title: "山和山不相遇",
 			// 主页横幅主标题字体大小
+			// banner-title.css 里有 min(此值, 10vw) 封顶，小屏不会溢出
 			titleSize: "4.5rem",
 			// 主页横幅副标题
-			subtitle: [
-				"In Reddened Chrysalis, I Once Rest",
-				"From Shattered Sky, I Free Fall",
-				"Amidst Silenced Stars, I Deep Sleep",
-				"Upon Lighted Fyrefly, I Soon Gaze",
-				"From Undreamt Night, I Thence Shine",
-				"In Finalized Morrow, I Full Bloom",
-			],
+			subtitle: ["人和人要重逢"],
 			// 主页横幅副标题字体大小
 			subtitleSize: "1.5rem",
 			typewriter: {
 				// 是否启用打字机效果
 				// 打字机开启 → 循环显示所有副标题
 				// 打字机关闭 → 每次刷新随机显示一条副标题
-				enable: true,
+				//
+				// 现在副标题只有一句固定的话，打字机已失去意义，所以关掉。
+				// （注：TypewriterText.astro 对单条文本不会循环删除，打完就停；
+				//   但 .typewriter::after 那个 "|" 光标会永远闪下去，而且每次 Swup
+				//   切回首页都会重打一遍。想要入场打字效果把下面改回 true 即可。）
+				enable: false,
 				// 打字速度（毫秒）
 				speed: 100,
 				// 删除速度（毫秒）
