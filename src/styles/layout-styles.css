@@ -19,12 +19,11 @@ html.is-page-transitioning .banner-home-text-overlay {
 }
 
 /* Banner text styles */
-
-/* 首页横幅入场动画：上句从上方落下、下句从下方升上。
-   （之前还在父容器上叠了一层整体缩放，已去掉：git show 91a5cac） */
+/* 首页横幅文案不加任何入场效果，直接静态显示。
+   主题原本在这里挂了一个 banner-fadeInUp（0.3s 上移 30px 淡入），
+   一并去掉。要找回：git show ca674c7:src/styles/layout-styles.css */
 .banner-title {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-    animation: banner-slide-in-down 1s cubic-bezier(0.33, 1, 0.68, 1) 0.12s both;
     font-weight: bold;
     /* 防止大字体标题溢出容器 */
     overflow-wrap: break-word;
@@ -33,83 +32,6 @@ html.is-page-transitioning .banner-home-text-overlay {
 
 .banner-subtitle {
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
-    animation: banner-slide-in-up 1s cubic-bezier(0.33, 1, 0.68, 1) 0.12s both;
-}
-
-/* 位移用 em，距离跟着字号走，手机上字小了幅度也会自动变小 */
-@keyframes banner-slide-in-down {
-    from {
-        opacity: 0;
-        transform: translateY(-1.6em);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes banner-slide-in-up {
-    from {
-        opacity: 0;
-        transform: translateY(2.4em);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* 滚筒文字：只开一行高的窗口，轨道向上位移一行就换成下一句。
-   窗口必须 overflow:hidden，否则两句会同时露出来。 */
-.banner-roller {
-    overflow: hidden;
-    /* 和主标题一样做小屏兰截，防止大字号溢出 */
-    font-size: min(var(--banner-roller-size, 3rem), 10vw);
-    font-weight: bold;
-    line-height: 1.35;
-    /* 窗口高度恰好一行，必须跟 .banner-roller-line 保持一致 */
-    height: 1.35em;
-    color: #fff;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-    font-family: var(--font-banner-title, inherit);
-}
-
-.banner-roller-track {
-    display: flex;
-    flex-direction: column;
-    /* transform 由 BannerRoller.astro 的脚本设置（百分比相对轨道自身高度） */
-    will-change: transform;
-}
-
-.banner-roller-line {
-    flex: 0 0 auto;
-    height: 1.35em;
-    line-height: 1.35;
-    /* 句子不允许换行，换行会把轨道擑高导致位移对不上 */
-    white-space: nowrap;
-}
-
-@media (max-width: 767px) {
-    .banner-roller {
-        font-size: min(var(--banner-roller-size, 3rem), 10vw);
-    }
-}
-
-/* 系统开了“减弱动画”时直接淡入，不做位移和缩放 */
-@media (prefers-reduced-motion: reduce) {
-    .banner-title,
-    .banner-subtitle {
-        animation: banner-fade-in 0.3s ease-out both;
-    }
-
-    @keyframes banner-fade-in {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
-    }
 }
 
 /* 移动端无侧边栏布局优化 */
