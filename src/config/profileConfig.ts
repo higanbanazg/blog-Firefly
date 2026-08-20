@@ -37,7 +37,7 @@ export const profileConfig: ProfileConfig = {
 		{
 			name: "Telegram",
 			icon: "fa7-brands:telegram",
-			url: "https://t.me/higshop_bot",
+			url: "https://t.me/higanbanacn",
 			showName: false,
 		},
 		{

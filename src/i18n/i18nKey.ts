@@ -49,7 +49,6 @@ enum I18nKey {
 	commentSection = "commentSection",
 	commentSubtitle = "commentSubtitle",
 	commentNotConfigured = "commentNotConfigured",
-	guestbookCommentHint = "guestbookCommentHint",
 
 	untitled = "untitled",
 	uncategorized = "uncategorized",
@@ -83,8 +82,6 @@ enum I18nKey {
 	friendsDescription = "friendsDescription",
 	searchFriends = "searchFriends",
 	friendsEmpty = "friendsEmpty",
-	guestbook = "guestbook",
-	guestbookDescription = "guestbookDescription",
 	bangumi = "bangumi",
 
 	// 书签导航
