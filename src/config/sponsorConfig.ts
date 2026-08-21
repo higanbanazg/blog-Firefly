@@ -50,7 +50,7 @@ export const sponsorConfig: SponsorConfig = {
 			name: "ko-fi",
 			icon: "simple-icons:kofi",
 			qrCode: "",
-			// 原值是作者的账号 https://ko-fi.com/cuteleaf，已清空
+			// 原值是主题作者的账号，已清空
 			link: "",
 			description: "Buy me a coffee",
 			// 填入自己的 ko-fi 主页后改为 true
@@ -60,7 +60,7 @@ export const sponsorConfig: SponsorConfig = {
 			name: "爱发电",
 			icon: "simple-icons:afdian",
 			qrCode: "",
-			// 原值是作者的账号 https://ifdian.net/a/cuteleaf，已清空
+			// 原值是主题作者的账号，已清空
 			link: "",
 			description: "通过 爱发电 进行打赏",
 			// 填入自己的爱发电主页后改为 true
