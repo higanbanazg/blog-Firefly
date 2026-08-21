@@ -1,5 +1,4 @@
 ---
-import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { Icon } from "astro-icon/components";
 import ci from "ci-info";
@@ -22,15 +21,6 @@ const { class: className, style, widgetConfig } = Astro.props;
 const showTitle = widgetConfig?.showTitle !== false;
 
 // ---- 构建时收集版本和环境信息 ----
-
-// 博客版本（从 package.json 读取）
-let blogVersion = "unknown";
-try {
-	const pkg = JSON.parse(
-		readFileSync(new URL("../../../package.json", import.meta.url), "utf-8"),
-	);
-	blogVersion = pkg.version || "Firefly unknown";
-} catch {}
 
 // Astro 版本（从已安装的 astro 包读取）
 let astroVersion = "unknown";
@@ -74,6 +64,16 @@ const buildPlatform = detectBuildPlatform({
 // i18n 的 siteInfoSystem 键位保留未删，各语言文件里仍有对应文案，
 // 以后想恢复直接加回 detailItems 即可。
 
+// 原来还有两处「博客版本」：mainItems 里的 "Firefly v6.15.8"（带外链指向
+// 上游主题仓库）和 detailItems 里重复的一行。这个版本号是上游主题的，跟本站
+// 内容无关；而且它一直显示成 "Firefly vunknown" —— readFileSync 用
+// new URL("../../../package.json", import.meta.url) 按源码位置找文件，构建后
+// 组件被打包进 dist/server/.prerender/chunks/，往上三层落到 dist/，那里没有
+// package.json，ENOENT 被空 catch 吞掉，静默退回 "unknown"。两行一起去掉。
+// MIT 的版权声明在仓库根目录 LICENSE 里，保留不动。
+// 要找回原文：git show 1d05ad9:src/components/widget/SiteInfo.astro
+// i18n 的 siteInfoBlogVersion 键位保留未删，以后想恢复加回 mainItems 即可。
+
 // 站点域名（去掉协议前缀）
 const siteDomain = siteConfig.site_url
 	? siteConfig.site_url.replace(/^https?:\/\//, "").replace(/\/$/, "")
@@ -89,12 +89,6 @@ const mainItems = [
 		icon: "material-symbols:cloud-outline",
 		label: i18n(I18nKey.siteInfoBuildPlatform),
 		value: buildPlatform,
-	},
-	{
-		icon: "mdi:clover",
-		label: i18n(I18nKey.siteInfoBlogVersion),
-		value: `Firefly v${blogVersion}`,
-		href: "https://github.com/CuteLeaf/Firefly",
 	},
 	{
 		icon: "material-symbols:copyright-outline",
@@ -116,11 +110,6 @@ const detailItems: {
 		label: i18n(I18nKey.siteInfoDomain),
 		value: siteDomain,
 		fullWidth: true,
-	},
-	{
-		icon: "mdi:clover",
-		label: "Firefly",
-		value: `v${blogVersion}`,
 	},
 	{
 		icon: "material-symbols:rocket-launch-outline",
