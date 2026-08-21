@@ -20,8 +20,7 @@ export const profileConfig: ProfileConfig = {
 	// 如果想使用尚未包含相应的图标集，则需要安装它
 	// `pnpm add @iconify-json/<icon-set-name>`
 	// showName: true 时显示图标和名称，false 时只显示图标
-	// ⚠️ 主题自带的 qq / GitHub / Email 三条原本全部指向主题作者 cuteleaf 本人
-	//    （qq 群 qm.qq.com/q/ZGsFa8qX2G、github.com/CuteLeaf、xiaye@msn.com）。
+	// ⚠️ 主题自带的 qq / GitHub / Email 三条原本全部指向主题作者本人。
 	//    邮箱那条尤其要命：页面只做了 base64 混淆防爬虫，读者点信封图标仍会正常
 	//    唤起邮件客户端寄给作者。qq 一条已整块移除，GitHub 换成本站站长的，
 	//    Email 整条换成了 Telegram（友链页的申请渠道也一并改成同一个账号）。
