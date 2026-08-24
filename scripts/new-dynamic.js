@@ -43,7 +43,10 @@ const seconds = dateParts.second;
 // 结果每条动态都比实际写的时间晚 8 小时。所以这里必须把偏移量写进去，
 // 输出完整 ISO 串 "2026-08-20T17:09:41+08:00"。
 const offsetLabel =
-	new Intl.DateTimeFormat("en-US", { timeZone: timezone, timeZoneName: "longOffset" })
+	new Intl.DateTimeFormat("en-US", {
+		timeZone: timezone,
+		timeZoneName: "longOffset",
+	})
 		.formatToParts(now)
 		.find((part) => part.type === "timeZoneName")?.value ?? "GMT+00:00";
 const offset = offsetLabel.replace(/^GMT/, "") || "+00:00";
