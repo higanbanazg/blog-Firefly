@@ -68,7 +68,7 @@ Defined in `src/content.config.ts`:
 
 - **Biome** enforces: tab indentation, double quotes, recommended lint rules
 - Relaxed rules for `.svelte`/`.astro`/`.vue` files (`useConst`, `useImportType`, `noUnusedVariables`, `noUnusedImports` off)
-- `pnpm lint`/`pnpm format` only target `./src` — `scripts/` is type-checked (tsconfig `include`) but not linted, and currently has pre-existing Biome findings
+- `pnpm lint`/`pnpm format` cover both `./src` and `./scripts`; both are clean and `pnpm lint` exits 0
 - `scripts/subset-font.d.ts` is a hand-written ambient declaration for the untyped `subset-font` package
 - Commit convention: **Conventional Commits** (`feat:`, `fix:`, `chore:`, etc.)
 
