@@ -86,22 +86,56 @@ const posterAvatarSelector = profileConfig.avatar
 
 dayjs.extend(utc);
 
+// 站内绝对地址：用 Astro.site 而非 Astro.url，避免 Workers 运行时里
+// host 取自请求头、以及 ?query 被带进结构化数据。
+const postUrl = new URL(Astro.url.pathname, Astro.site).toString();
+
+// 结构化数据的配图直接复用构建期生成的 OG 图（1200x630，符合 Google 对
+// Article 配图的尺寸建议）。正文封面是相对 md 文件的路径，拿不到构建后的
+// 绝对 URL，所以不用它。
+const jsonLdImage = siteConfig.post.generateOgImages
+	? new URL(`/og/${entry.id}.png`, Astro.site).toString()
+	: undefined;
+
+const siteLogo = siteConfig.favicon[0]?.src;
+
 const jsonLd = {
 	"@context": "https://schema.org",
 	"@type": "BlogPosting",
 	headline: entry.data.title,
 	description: entry.data.description || entry.data.title,
 	keywords: entry.data.tags,
+	url: postUrl,
+	mainEntityOfPage: {
+		"@type": "WebPage",
+		"@id": postUrl,
+	},
+	...(jsonLdImage ? { image: [jsonLdImage] } : {}),
 	author: {
 		"@type": "Person",
 		name: profileConfig.name,
 		url: Astro.site,
 	},
+	publisher: {
+		"@type": "Organization",
+		name: siteConfig.title,
+		url: Astro.site,
+		...(siteLogo
+			? {
+					logo: {
+						"@type": "ImageObject",
+						url: new URL(siteLogo, Astro.site).toString(),
+					},
+				}
+			: {}),
+	},
 	datePublished: formatDateToYYYYMMDD(entry.data.published),
+	dateModified: formatDateToYYYYMMDD(
+		entry.data.updated || entry.data.published,
+	),
 	inLanguage: entry.data.lang
 		? entry.data.lang.replace("_", "-")
 		: siteConfig.lang.replace("_", "-"),
-	// TODO include cover image here
 };
 
 const relatedPosts = await getRelatedPosts(entry, 5);
@@ -115,6 +149,7 @@ const relatedPosts = await getRelatedPosts(entry, 5);
   setOGTypeArticle={true}
   postSlug={entry.id}
   postCategory={entry.data.category || undefined}
+  keywords={entry.data.tags}
   headings={headings}
   encrypted={!!entry.data.password}
   bannerPostMeta={bannerPostMeta}

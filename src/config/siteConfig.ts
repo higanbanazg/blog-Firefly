@@ -9,11 +9,11 @@ export const siteConfig: SiteConfig = {
 	// 浏览器标签页标题就是这个：首页显示 title（副标题非空时是「title - subtitle」），
 	// 内页显示「页面名 - title」。同时进 og:site_name、RSS 频道标题。
 	// 注意它和导航栏左上角那行字是两回事，那行由下面 navbar.title 单独控制。
-	title: "higanbana blog",
+	title: "higanbana-留白",
 
 	// 站点副标题
 	// 只在 Layout.astro 拼标签页标题时用到，别处没有引用。
-	// 留空是为了让首页标签页正好显示「higanbana blog」，而不是「higanbana blog - demo」。
+	// 留空是为了让首页标签页正好显示「higanbana-留白」，而不是再拼一段副标题。
 	subtitle: "",
 
 	// 站点 URL
@@ -225,7 +225,7 @@ export const siteConfig: SiteConfig = {
 		// 是否开启分享海报生成功能
 		sharePoster: true,
 		// OpenGraph图片功能，注意开启后要渲染很长时间，不建议本地调试的时候开启
-		generateOgImages: false,
+		generateOgImages: true,
 	},
 
 	// bangumi配置（页面已在上方 pages.bangumi 关闭）
