@@ -41,6 +41,8 @@ interface Props {
 	setOGTypeArticle?: boolean;
 	postSlug?: string;
 	hasWallpaper?: boolean;
+	/** 文章标签，用于覆盖站点级 keywords；不传则回落到 siteConfig.keywords */
+	keywords?: string[];
 }
 
 let {
@@ -50,6 +52,7 @@ let {
 	setOGTypeArticle,
 	postSlug,
 	hasWallpaper = false,
+	keywords,
 } = Astro.props;
 
 // apply a class to the body element to decide the height of the banner, only used for initial page load
@@ -95,6 +98,15 @@ let ogImageUrl: string | undefined;
 if (siteConfig.post.generateOgImages && postSlug) {
 	ogImageUrl = new URL(`/og/${postSlug}.png`, Astro.site).toString();
 }
+
+// canonical 用 Astro.site 拼，不直接用 Astro.url：
+// Workers 运行时里 Astro.url 的 host 取自请求头，带 ?query 时也会原样带上，
+// 两者都会让同一篇文章产生多个 canonical。
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
+
+// 文章页用自己的标签当 keywords，其他页面回落到站点级关键词。
+const effectiveKeywords =
+	keywords && keywords.length > 0 ? keywords : siteConfig.keywords;
 
 const favicons: Favicon[] =
 	siteConfig.favicon.length > 0 ? siteConfig.favicon : defaultFavicons;
@@ -148,10 +160,11 @@ const siteLang = lang.replace("_", "-");
       content={description || siteConfig.description || pageTitle}
     />
     {
-      siteConfig.keywords && siteConfig.keywords.length > 0 && (
-        <meta name="keywords" content={siteConfig.keywords.join(", ")} />
+      effectiveKeywords && effectiveKeywords.length > 0 && (
+        <meta name="keywords" content={effectiveKeywords.join(", ")} />
       )
     }
+    <link rel="canonical" href={canonicalUrl} />
     <meta name="author" content={profileConfig.name} />
 
     <meta property="og:site_name" content={siteConfig.title} />
@@ -177,6 +190,7 @@ const siteLang = lang.replace("_", "-");
       name="twitter:description"
       content={description || siteConfig.description || pageTitle}
     />
+    {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
 
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
