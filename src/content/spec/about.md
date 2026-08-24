@@ -1,6 +1,6 @@
 # 关于我 / About Me
 
-你好！我是 **higanbana** ，一个在数字世界中默默无闻的彼岸花。
+你好！我是 **higanbana** ，这个博客模板是我看来又看，纠结了很久选中的，然后让 ai 改了又改的出来的，但是总感觉又好像缺少了什么，暂时先这样把。
 
 ## 🛠️ 关于本站
 
@@ -11,10 +11,6 @@
 **⭐Firefly开源地址：[https://github.com/CuteLeaf/Firefly](https://github.com/CuteLeaf/Firefly)** 
 
 **⭐Fuwari开源地址：[https://github.com/saicaca/fuwari](https://github.com/saicaca/fuwari)**
-
-::github{repo="CuteLeaf/Firefly"}
-
-::github{repo="saicaca/fuwari"}
 
 ---
 
