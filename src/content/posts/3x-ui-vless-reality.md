@@ -3,7 +3,7 @@ title: 2026 3X-UI 搭建教程：VLESS + REALITY 小白保姆级教程，从零�
 published: 2026-08-24
 description: "从买 VPS、域名托管 Cloudflare，到安装 3X-UI 面板、创建 VLESS + REALITY 节点、电脑手机客户端配置，再到 UFW 防火墙放通端口的完整图文流程。"
 image: "./images/3x-ui/cover.avif"
-tags: [3x-ui, vps, 教程, REALITY+VLESS]
+tags: [3X-UI, VPS, REALITY+VLESS]
 category: "教程"
 draft: false
 ---
