@@ -24,6 +24,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import { pinyin } from "pinyin-pro";
+import sharp from "sharp";
 import { siteConfig } from "../../src/config/siteConfig";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -534,31 +535,88 @@ function saveFriends(list: FriendPayload[]): { count: number } {
 type UploadPayload = {
 	kind: string;
 	slug: string;
+	dir?: string;
 	filename: string;
 	data: string;
 };
 
-function uploadImage(payload: UploadPayload): { markdown: string } {
-	const bytes = Buffer.from(payload.data.split(",").pop() || "", "base64");
-	if (bytes.length === 0) throw new Error("图片内容为空");
-	const name = safeFileName(payload.filename);
+type UploadResult = {
+	markdown: string;
+	rawBytes: number;
+	outBytes: number;
+	converted: boolean;
+};
+
+// 粘进来的截图动辄几百 KB PNG，而站上现有的图全是 AVIF（那 81 张平均 31 KB），
+// 所以统一转一道再落盘。三类不碰：
+//   gif  —— sharp 默认只取第一帧，转完动图就死了
+//   svg  —— 矢量转位图等于作废
+//   avif —— 已经是目标格式，再编一次纯粹是有损叠有损
+const KEEP_AS_IS = new Set([".gif", ".svg", ".avif"]);
+const MAX_IMAGE_WIDTH = 1600;
+
+async function encodeUpload(
+	raw: Buffer,
+	name: string,
+): Promise<{ bytes: Buffer; name: string; converted: boolean }> {
+	const rawExt = path.extname(name);
+	if (KEEP_AS_IS.has(rawExt.toLowerCase())) {
+		return { bytes: raw, name, converted: false };
+	}
+	try {
+		const out = await sharp(raw)
+			// 手机照片的方向记在 EXIF 里，得先烤进像素再编码，否则会躺倒
+			.rotate()
+			.resize({ width: MAX_IMAGE_WIDTH, withoutEnlargement: true })
+			.avif({ quality: 60 })
+			.toBuffer();
+		// 本来就压得很狠的小图，转 AVIF 反而更大，那就留原图
+		if (out.length >= raw.length) return { bytes: raw, name, converted: false };
+		return {
+			bytes: out,
+			name: `${path.basename(name, rawExt)}.avif`,
+			converted: true,
+		};
+	} catch {
+		// 编码失败（罕见格式、文件损坏）不该让整个上传挂掉，退回原图
+		return { bytes: raw, name, converted: false };
+	}
+}
+
+async function uploadImage(payload: UploadPayload): Promise<UploadResult> {
+	const raw = Buffer.from(payload.data.split(",").pop() || "", "base64");
+	if (raw.length === 0) throw new Error("图片内容为空");
+	const enc = await encodeUpload(raw, safeFileName(payload.filename));
 
 	if (payload.kind === "post") {
-		const slug = toSlug(payload.slug || "") || "misc";
-		const dir = path.join(POST_IMAGES_DIR, slug);
+		// dir 由前端决定：新文章跟着 slug 走，老文章沿用正文里已经在用的那个
+		// 目录——比如 3x-ui-vless-reality 这篇，slug 和图片目录 3x-ui 本来就
+		// 不一样，按 slug 推会凭空多出个新文件夹。
+		const sub = toSlug(payload.dir || payload.slug || "") || "misc";
+		const dir = path.join(POST_IMAGES_DIR, sub);
 		if (!insideDir(POST_IMAGES_DIR, dir)) throw new Error("非法的图片目录");
 		fs.mkdirSync(dir, { recursive: true });
-		const target = uniquePath(dir, name);
-		fs.writeFileSync(target, bytes);
-		// 文章正文用相对路径，这样 Astro 才会做优化压缩。
-		return { markdown: `./images/${slug}/${path.basename(target)}` };
+		const target = uniquePath(dir, enc.name);
+		fs.writeFileSync(target, enc.bytes);
+		// 文章正文用相对路径，这样 Astro 才会接手做优化压缩。
+		return {
+			markdown: `./images/${sub}/${path.basename(target)}`,
+			rawBytes: raw.length,
+			outBytes: enc.bytes.length,
+			converted: enc.converted,
+		};
 	}
 
 	fs.mkdirSync(DYNAMIC_IMAGES_DIR, { recursive: true });
-	const target = uniquePath(DYNAMIC_IMAGES_DIR, name);
-	fs.writeFileSync(target, bytes);
+	const target = uniquePath(DYNAMIC_IMAGES_DIR, enc.name);
+	fs.writeFileSync(target, enc.bytes);
 	// 动态的图不过 Astro 优化，必须是站内绝对路径。
-	return { markdown: `/dynamic-images/${path.basename(target)}` };
+	return {
+		markdown: `/dynamic-images/${path.basename(target)}`,
+		rawBytes: raw.length,
+		outBytes: enc.bytes.length,
+		converted: enc.converted,
+	};
 }
 
 /* ----------------------------------- Git ---------------------------------- */
