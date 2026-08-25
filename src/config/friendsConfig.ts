@@ -1,4 +1,5 @@
 import type { FriendLink, FriendsPageConfig } from "../types/friendsConfig";
+import friendsData from "./friends.json";
 
 // 可以在src/content/spec/friends.md中编写友链页面下方的自定义内容
 
@@ -23,17 +24,14 @@ export const friendsPageConfig: FriendsPageConfig = {
 // 友链配置
 // 主题自带三条：作者本人的博客、作者的主题文档站、Astro 官方仓库，已全部删除。
 // 本站自己的占位条目也已撤掉——友链页列自己没有意义，现在开始只放真实友链。
-export const friendsConfig: FriendLink[] = [
-	{
-		title: "Setang's Blog",
-		imgurl: "https://lucklog.cc/upload/MYSTICS.png?width=160",
-		desc: "测试各种机器，给各位提供一些参考与建议",
-		siteurl: "https://lucklog.cc/",
-		tags: ["Blog"],
-		weight: 10, // 权重，数字越大排序越靠前
-		enabled: true, // 是否启用
-	},
-];
+//
+// 数据本体在同目录的 friends.json，这里只做类型标注后转出去。
+// 拆开的原因：`pnpm admin` 本地后台要增删改友链，读写 JSON 是两行代码，
+// 而解析 TS 数组字面量（还带行尾注释）很容易出错。手写也可以直接编辑
+// friends.json，字段含义见 src/types/friendsConfig.ts：
+//   title 站名 / imgurl 头像图 URL / desc 描述 / siteurl 站点地址
+//   tags 标签数组 / weight 权重（越大越靠前）/ enabled 是否启用
+export const friendsConfig: FriendLink[] = friendsData;
 
 // 获取启用的友链并进行排序
 export const getEnabledFriends = (): FriendLink[] => {

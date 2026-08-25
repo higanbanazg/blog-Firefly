@@ -1,0 +1,11 @@
+[
+	{
+		"title": "Setang's Blog",
+		"imgurl": "https://lucklog.cc/upload/MYSTICS.png?width=160",
+		"desc": "测试各种机器，给各位提供一些参考与建议",
+		"siteurl": "https://lucklog.cc/",
+		"tags": ["Blog"],
+		"weight": 10,
+		"enabled": true
+	}
+]
