@@ -7,5 +7,14 @@
 		"tags": ["Blog"],
 		"weight": 10,
 		"enabled": true
+	},
+	{
+		"title": "极客宗山",
+		"imgurl": "https://img.geekzs.com/avatar/avatar.png",
+		"desc": "记录&沉淀",
+		"siteurl": "https://blog.geekzs.com",
+		"tags": ["Blog"],
+		"weight": 10,
+		"enabled": true
 	}
 ]
