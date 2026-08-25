@@ -118,6 +118,26 @@ function blankPost() {
 	};
 }
 
+// 老文章的图片目录和 slug 常常对不上：3x-ui-vless-reality 那篇，图一直放在
+// images/3x-ui/ 下。所以打开文章时先从正文里认出它已经在用的目录，认不出来
+// 才退回 slug——否则粘一张图就会凭空多出个新文件夹。
+function detectImgDir(body, slug) {
+	const hits = [...body.matchAll(/\.\/images\/([^/)\]\s]+)\//g)].map(
+		(m) => m[1],
+	);
+	if (hits.length === 0) return slug;
+	// 一篇文章理论上只用一个目录，真混用了就取出现次数最多的那个
+	const tally = new Map();
+	for (const h of hits) tally.set(h, (tally.get(h) || 0) + 1);
+	return [...tally].sort((a, b) => b[1] - a[1])[0][0];
+}
+
+// 图片目录默认跟着 slug 走，但用户手动改过就不再自动跟
+function syncImgDir() {
+	if ($("p-imgdir").dataset.touched) return;
+	$("p-imgdir").value = $("p-slug").value.trim();
+}
+
 function fillPost(p) {
 	curPost = p;
 	$("postHead").textContent = p.originalSlug
@@ -142,6 +162,15 @@ function fillPost(p) {
 	$("p-pinned").checked = p.pinned;
 	$("p-comment").checked = p.comment;
 	$("body").value = p.body;
+	const imgDir = detectImgDir(p.body, p.slug);
+	$("p-imgdir").value = imgDir;
+	if (imgDir && imgDir !== p.slug) {
+		// 正文里认出来的目录和 slug 不一致，说明这篇文章有自己的约定，
+		// 之后改 slug 也不该把它冲掉
+		$("p-imgdir").dataset.touched = "1";
+	} else {
+		delete $("p-imgdir").dataset.touched;
+	}
 	$("btnPreviewPost").href = `http://localhost:4321/posts/${p.slug || ""}/`;
 	renderPostList();
 }
@@ -210,6 +239,11 @@ $("p-title").addEventListener("input", () => {
 
 $("p-slug").addEventListener("input", () => {
 	$("p-slug").dataset.touched = "1";
+	syncImgDir();
+});
+
+$("p-imgdir").addEventListener("input", () => {
+	$("p-imgdir").dataset.touched = "1";
 });
 
 $("btnSavePost").onclick = async () => {
@@ -340,11 +374,20 @@ function insertAtCursor(area, text) {
 	area.focus();
 }
 
+// 上传后在提示里报一下体积变化，好知道这道转码到底省了多少
+function sizeNote(r) {
+	const kb = (n) => `${(n / 1024).toFixed(0)} KB`;
+	if (!r.converted) return `（${kb(r.outBytes)}，未转码）`;
+	const cut = Math.round((1 - r.outBytes / r.rawBytes) * 100);
+	return `（${kb(r.rawBytes)} → ${kb(r.outBytes)}，省 ${cut}%）`;
+}
+
 // kind 决定图片落到哪：
-//   post    -> src/content/posts/images/<slug>/，返回 ./images/<slug>/x.png 相对路径，
-//              Astro 会接手做优化
-//   dynamic -> public/dynamic-images/，返回 /dynamic-images/x.png 站内绝对路径。
-//              动态的图片是被 dynamic-data.ts 抽出来原样塞进 <img src>，
+//   post    -> src/content/posts/images/<目录>/，返回 ./images/<目录>/x.avif
+//              相对路径，Astro 会接手做优化。目录取「图片目录」输入框，默认
+//              是 slug，老文章则是从正文里认出来的那个
+//   dynamic -> public/dynamic-images/，返回 /dynamic-images/x.avif 站内绝对
+//              路径。动态的图片是被 dynamic-data.ts 抽出来原样塞进 <img src>，
 //              不走 Astro 优化，所以必须放在 public 下
 async function uploadFiles(files, kind, area) {
 	for (const file of files) {
@@ -357,14 +400,16 @@ async function uploadFiles(files, kind, area) {
 				r.readAsDataURL(file);
 			});
 			const slug = kind === "post" ? $("p-slug").value.trim() || "misc" : "";
+			const dir = kind === "post" ? $("p-imgdir").value.trim() : "";
 			const r = await post("/api/upload", {
 				kind,
 				slug,
+				dir,
 				filename: file.name,
 				data,
 			});
 			insertAtCursor(area, `![](${r.markdown})\n`);
-			toast(`已上传 ${r.markdown}`, "ok");
+			toast(`已上传 ${r.markdown} ${sizeNote(r)}`, "ok");
 		} catch (err) {
 			toast(err.message, "err");
 		}

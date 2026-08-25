@@ -109,6 +109,8 @@ main { display: grid; grid-template-columns: 300px 1fr; gap: 14px; padding: 14px
    label 那份 12px/muted 的字重新覆盖回正常值 */
 .field > label input { font-size: 14px; color: var(--text); }
 .grow { flex: 1; }
+.imgdir { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.imgdir input { font-size: 13px; }
 .inline { display: flex; align-items: center; gap: 6px; font-size: 13px; }
 .hint.warn { color: var(--warn); }
 .field input[type=text], .field input[type=number], .field input[type=date], .field select, .field textarea {
@@ -246,7 +248,13 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 				<div class="editor-drop" id="postDrop">
 					<textarea id="body" spellcheck="false"></textarea>
 				</div>
-				<div class="hint">拖入或粘贴图片即自动上传到 <span class="mono">src/content/posts/images/&lt;slug&gt;/</span> 并插入相对路径。</div>
+				<div class="imgdir">
+					<label for="p-imgdir" class="hint">图片目录</label>
+					<span class="hint mono">src/content/posts/images/</span>
+					<input type="text" id="p-imgdir" class="mono grow" />
+					<span class="hint mono">/</span>
+				</div>
+				<div class="hint">拖入或粘贴图片即上传到上面这个目录，自动转 AVIF（gif / svg / avif 原样保留），并按相对路径插入正文。目录默认跟 slug 走；打开老文章时会认出它正在用的那个目录。</div>
 			</div>
 
 			<div class="actions">
@@ -290,7 +298,7 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 				<div class="editor-drop" id="dynDrop">
 					<textarea id="d-body" rows="12" spellcheck="false"></textarea>
 				</div>
-				<div class="hint">图片会传到 <span class="mono">public/dynamic-images/</span>，动态用站内绝对路径引用，自动进相册视图。</div>
+				<div class="hint">图片会传到 <span class="mono">public/dynamic-images/</span>，动态用站内绝对路径引用，自动进相册视图。同样会转 AVIF（gif / svg / avif 原样保留）。</div>
 			</div>
 			<div class="actions">
 				<button type="button" class="btn primary" id="btnSaveDyn">保存</button>
