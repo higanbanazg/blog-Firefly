@@ -21,6 +21,7 @@ Firefly is a feature-rich static blog theme built on **Astro 7** with **Svelte 5
 | `pnpm new-dynamic` (`new-d`) | Scaffold a new dynamic (microblog) entry |
 | `pnpm lqips` | Regenerate LQIP data into `src/constants/lqips.json` |
 | `pnpm indexnow [url ...]` | Push URLs to IndexNow (Bing/Yandex/Seznam/Naver — not Google); no args = whole live sitemap |
+| `pnpm admin` | Local-only content admin at `127.0.0.1:4322` (posts, dynamics, friends) |
 
 Package manager is **pnpm** (enforced). Node.js >= 22 required.
 
@@ -39,6 +40,8 @@ All features are toggled/configured via TypeScript files in `src/config/`, expor
 - `siteConfig.ts` — core site settings, theme, pagination
 - `sidebarConfig.ts` — sidebar layout (left/right/both, widget ordering)
 - `commentConfig.ts`, `analyticsConfig.ts`, `fontConfig.ts`, etc.
+
+One exception to the TS-only rule: friend-link *data* lives in `src/config/friends.json`, and `friendsConfig.ts` only types it and sorts it. The split exists so `pnpm admin` can rewrite friends without parsing a TS array literal. Edit either the JSON directly or the admin UI.
 
 ### Layout System
 
@@ -60,6 +63,7 @@ Defined in `src/content.config.ts`:
 - `src/utils/` — content sorting, crypto (encrypted posts), date formatting, image processing/LQIP, TOC generation
 - `src/pages/` — Astro file-based routing
 - `scripts/` — build-time utilities (`generate-lqips.ts`, `generate-vndb-covers.ts`, `subset-fonts.ts`, `new-post.js`, `new-dynamic.js`) and ops one-offs (`indexnow.ts`)
+- `scripts/admin/` — the `pnpm admin` content backend (`server.ts`) plus its no-build UI (`ui.html` + `ui.js`)
 
 ### Path Aliases (tsconfig.json)
 
@@ -80,6 +84,24 @@ Multi-step: `scripts/generate-lqips.ts` → `scripts/generate-vndb-covers.ts` �
 LQIP data is generated into `src/constants/lqips.json` and committed — regenerate with `pnpm lqips`. Icon data lives in `src/constants/icons-data.json` (committed, Biome-ignored, consumed by `src/components/common/Icon.svelte`) but has no generator script in the current build.
 
 `generate-vndb-covers.ts` downloads VNDB cover art into `public/vndb-covers/` (gitignored, skips files that already exist). It no-ops unless `siteConfig.vndb` has a `userId`, `downloadCovers: true`, and `mode: "static"`.
+
+## Content Admin (`pnpm admin`)
+
+A local-only editor for posts, dynamics, and friend links. `scripts/admin/server.ts` is a plain Node HTTP server; `ui.html` + `ui.js` are served as-is with no build step.
+
+**Why it is a script and not an Astro route.** Cloudflare Workers has no `fs`. Anything under `src/pages/` that reads or writes the content directory breaks the production build, so the admin lives outside the Astro app entirely and never ships to `dist/`.
+
+**Why the body is a raw `<textarea>`.** This repo has 15 custom remark/rehype plugins (Mermaid, PlantUML, KaTeX, wiki links, admonitions, image grid). A WYSIWYG or AST-backed editor re-serializes Markdown on save and mangles syntax it has no node type for. The admin never parses the body — it moves text verbatim. Frontmatter is rebuilt from typed fields; the existing post round-trips read→save byte-identically.
+
+**Security model.** Binds `127.0.0.1` only. Every `/api/` call needs a per-process random token, injected into the page at request time and sent as `X-Admin-Token`, plus an `Origin` check — so a random page in the same browser cannot drive it. All paths are validated with `insideDir()` before any read, write, or delete.
+
+**Image routing differs by kind, and this matters.** Post images go to `src/content/posts/images/<slug>/` and are referenced relatively (`./images/<slug>/x.png`) so Astro optimizes them. Dynamic images go to `public/dynamic-images/` and are referenced site-absolutely (`/dynamic-images/x.png`), because `src/utils/dynamic-data.ts` extracts them by regex and passes `src` straight into `<img>` with no optimization. The directory is `dynamic-images`, not `dynamic`, to avoid colliding with the `/dynamic/` page route.
+
+**Dynamic timestamps must carry the `+08:00` offset.** `published` is `z.date()`; an offset-less `2026-08-20 17:23:13` parses as UTC and then renders 8 hours late. The server writes full ISO strings and preserves the raw `published` line on read rather than round-tripping through a `Date`.
+
+**Publishing is scoped on purpose.** The 发布上线 panel runs `git add --` against `src/content`, `src/config/friends.json`, and `public/dynamic-images` only — never `git add -A`. Anything else you have in progress shows in a separate "not included" list and stays uncommitted.
+
+`friends.json` is written field-by-field rather than via `JSON.stringify(x, null, "\t")`, which would expand `"tags": ["Blog"]` onto three lines and fight Biome's formatter on every save.
 
 ## Deployment
 
