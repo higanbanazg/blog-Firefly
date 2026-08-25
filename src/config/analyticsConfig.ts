@@ -4,7 +4,10 @@ export const analyticsConfig: AnalyticsConfig = {
 	// Google Analytics ID
 	googleAnalyticsId: "",
 	// Microsoft Clarity ID
-	microsoftClarityId: "",
+	// 填了就自动在 Layout.astro 里挂载埋点脚本，留空则完全不加载。
+	// 这串 ID 按设计就是公开的：它要明文嵌进页面给所有访客加载，不是机密凭证。
+	// 后台 https://clarity.microsoft.com/projects/view/y7pxkhcjl4
+	microsoftClarityId: "y7pxkhcjl4",
 	// Umami 统计配置
 	umamiAnalytics: {
 		// Umami Website ID
