@@ -22,13 +22,13 @@ export const friendsPageConfig: FriendsPageConfig = {
 
 // 友链配置
 // 主题自带三条：作者本人的博客、作者的主题文档站、Astro 官方仓库，已全部删除。
-// 现在只留一条本站自己的占位条目，等有真实友链再往下加。
+// 本站自己的占位条目也已撤掉——友链页列自己没有意义，现在开始只放真实友链。
 export const friendsConfig: FriendLink[] = [
 	{
-		title: "higanbana",
-		imgurl: "https://blog.ipfox.cc/favicon/higanbana-192.png",
-		desc: "higanbana的随记分享",
-		siteurl: "https://blog.ipfox.cc",
+		title: "Setang's Blog",
+		imgurl: "https://lucklog.cc/upload/MYSTICS.png?width=160",
+		desc: "测试各种机器，给各位提供一些参考与建议",
+		siteurl: "https://lucklog.cc/",
 		tags: ["Blog"],
 		weight: 10, // 权重，数字越大排序越靠前
 		enabled: true, // 是否启用
