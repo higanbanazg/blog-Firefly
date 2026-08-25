@@ -237,6 +237,13 @@ export default defineConfig({
 				if (pathname === "/dynamic/" && !siteConfig.pages.dynamic) {
 					return false;
 				}
+				// /dynamic/comments/ 是动态页里用 iframe 嵌入的评论挂载点，不是给人看的页面：
+				// 标题为空，正文只有一个评论组件。评论系统关掉时它还会直接重定向到 /404/
+				// 并带上 noindex，收进 sitemap 只会让 Google 报「已提交的网址标记为 noindex」。
+				// 无论评论开没开都不该出现在 sitemap 里，所以无条件排除。
+				if (pathname === "/dynamic/comments/") {
+					return false;
+				}
 				if (pathname === "/friends/" && !siteConfig.pages.friends) {
 					return false;
 				}
