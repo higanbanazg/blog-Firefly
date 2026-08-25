@@ -20,6 +20,7 @@ Firefly is a feature-rich static blog theme built on **Astro 7** with **Svelte 5
 | `pnpm new-post <filename>` | Scaffold a new blog post |
 | `pnpm new-dynamic` (`new-d`) | Scaffold a new dynamic (microblog) entry |
 | `pnpm lqips` | Regenerate LQIP data into `src/constants/lqips.json` |
+| `pnpm indexnow [url ...]` | Push URLs to IndexNow (Bing/Yandex/Seznam/Naver — not Google); no args = whole live sitemap |
 
 Package manager is **pnpm** (enforced). Node.js >= 22 required.
 
@@ -58,7 +59,7 @@ Defined in `src/content.config.ts`:
 - `src/i18n/` — translation keys in `i18nKey.ts`, language files in `languages/*.ts`, lookup via `translation.ts`
 - `src/utils/` — content sorting, crypto (encrypted posts), date formatting, image processing/LQIP, TOC generation
 - `src/pages/` — Astro file-based routing
-- `scripts/` — build-time utilities (`generate-lqips.ts`, `generate-vndb-covers.ts`, `subset-fonts.ts`, `new-post.js`, `new-dynamic.js`)
+- `scripts/` — build-time utilities (`generate-lqips.ts`, `generate-vndb-covers.ts`, `subset-fonts.ts`, `new-post.js`, `new-dynamic.js`) and ops one-offs (`indexnow.ts`)
 
 ### Path Aliases (tsconfig.json)
 
@@ -85,4 +86,6 @@ LQIP data is generated into `src/constants/lqips.json` and committed — regener
 - **Vercel** (default, `vercel.json`)
 - **Cloudflare Workers** (`wrangler.jsonc`, set `CF_WORKERS` env var)
 - Static output to `dist/`
+
+`scripts/indexnow.ts` is a **post-deploy** op, not part of the build: it reads the *live* sitemap (not `dist/`) and POSTs the URLs to IndexNow. The key is hardcoded in the script and must stay identical to `public/<key>.txt` — that public file is how IndexNow verifies domain ownership, so the key is meant to be public. The script self-checks that the key file is reachable before submitting.
 
