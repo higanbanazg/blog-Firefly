@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>内容后台</title>
+<style>
+:root {
+	--bg: #f6f7f9;
+	--panel: #ffffff;
+	--line: #e3e6ea;
+	--text: #1f2328;
+	--muted: #6b7280;
+	--primary: #17a67f;
+	--primary-soft: rgba(23, 166, 127, .1);
+	--danger: #d64545;
+	--warn: #b7791f;
+	--radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #14161a;
+		--panel: #1c1f24;
+		--line: #2d3138;
+		--text: #e6e8eb;
+		--muted: #9aa1ab;
+		--primary: #2bbd92;
+		--primary-soft: rgba(43, 189, 146, .14);
+		--danger: #e06a6a;
+		--warn: #d5a03a;
+	}
+}
+* { box-sizing: border-box; }
+body {
+	margin: 0;
+	background: var(--bg);
+	color: var(--text);
+	font: 14px/1.6 system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+a { color: var(--primary); }
+
+header {
+	display: flex; align-items: center; gap: 12px;
+	padding: 10px 16px;
+	background: var(--panel);
+	border-bottom: 1px solid var(--line);
+	position: sticky; top: 0; z-index: 20;
+	flex-wrap: wrap;
+}
+header h1 { font-size: 15px; margin: 0 8px 0 0; font-weight: 700; }
+.tabs { display: flex; gap: 4px; }
+.tab {
+	padding: 6px 14px; border-radius: var(--radius);
+	border: 1px solid transparent; background: none; cursor: pointer;
+}
+.tab.on { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+.spacer { flex: 1; }
+.git-chip {
+	font-size: 12px; color: var(--muted);
+	padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px;
+	white-space: nowrap;
+}
+.git-chip.dirty { color: var(--warn); border-color: var(--warn); }
+
+.btn {
+	padding: 6px 14px; border-radius: var(--radius);
+	border: 1px solid var(--line); background: var(--panel); cursor: pointer;
+}
+.btn:hover { border-color: var(--primary); }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.btn.danger { color: var(--danger); border-color: var(--danger); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+main { display: grid; grid-template-columns: 300px 1fr; gap: 14px; padding: 14px; align-items: start; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.panel-head {
+	display: flex; align-items: center; gap: 8px;
+	padding: 10px 12px; border-bottom: 1px solid var(--line);
+	font-weight: 600; font-size: 13px;
+}
+.panel-body { padding: 12px; }
+
+.list { max-height: calc(100vh - 130px); overflow: auto; }
+.item {
+	padding: 9px 12px; border-bottom: 1px solid var(--line);
+	cursor: pointer; display: block; width: 100%; text-align: left;
+	background: none; border-left: 3px solid transparent;
+}
+.item:hover { background: var(--primary-soft); }
+.item.on { border-left-color: var(--primary); background: var(--primary-soft); }
+.item-title { font-weight: 600; margin-bottom: 2px; word-break: break-word; }
+.item-meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; }
+.badge {
+	font-size: 11px; padding: 0 6px; border-radius: 4px;
+	border: 1px solid var(--line); color: var(--muted);
+}
+.badge.draft { color: var(--warn); border-color: var(--warn); }
+.badge.pin { color: var(--primary); border-color: var(--primary); }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+@media (max-width: 720px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.field > label { font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+/* 友链行的 label 直接包住 input（省掉生成唯一 id），所以 input 要把
+   label 那份 12px/muted 的字重新覆盖回正常值 */
+.field > label input { font-size: 14px; color: var(--text); }
+.grow { flex: 1; }
+.inline { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.hint.warn { color: var(--warn); }
+.field input[type=text], .field input[type=number], .field input[type=date], .field select, .field textarea {
+	padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px;
+	background: var(--bg); width: 100%;
+}
+.field textarea { resize: vertical; }
+.hint { font-size: 12px; color: var(--muted); }
+.checks { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
+.checks label { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+
+#body {
+	min-height: 52vh; font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+	font-size: 13px; line-height: 1.7;
+}
+.editor-drop { border: 2px dashed transparent; border-radius: 8px; }
+.editor-drop.over { border-color: var(--primary); }
+
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding-top: 4px; }
+.toast {
+	position: fixed; right: 16px; bottom: 16px; z-index: 60;
+	max-width: 460px; padding: 10px 14px; border-radius: var(--radius);
+	background: var(--panel); border: 1px solid var(--line);
+	box-shadow: 0 8px 24px rgba(0,0,0,.16); white-space: pre-wrap;
+}
+.toast.err { border-color: var(--danger); color: var(--danger); }
+.toast.ok { border-color: var(--primary); color: var(--primary); }
+.hidden { display: none; }
+
+.friend-row { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; margin-bottom: 10px; }
+.friend-row.off { opacity: .55; }
+.friend-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.friend-head img { width: 34px; height: 34px; border-radius: 8px; object-fit: cover; background: var(--bg); }
+.mono { font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+pre.out {
+	background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+	padding: 10px; overflow: auto; max-height: 220px; font-size: 12px; margin: 0;
+}
+dialog {
+	border: 1px solid var(--line); border-radius: var(--radius);
+	background: var(--panel); color: var(--text); padding: 0; max-width: 620px; width: 92vw;
+}
+dialog::backdrop { background: rgba(0,0,0,.45); }
+</style>
+</head>
+<body>
+
+<header>
+	<h1>内容后台</h1>
+	<div class="tabs">
+		<button type="button" class="tab on" data-tab="posts">文章</button>
+		<button type="button" class="tab" data-tab="dynamics">动态</button>
+		<button type="button" class="tab" data-tab="friends">友链</button>
+	</div>
+	<div class="spacer"></div>
+	<span id="gitChip" class="git-chip">读取中…</span>
+	<button type="button" class="btn" id="btnReload">刷新</button>
+	<button type="button" class="btn primary" id="btnPublish">发布上线</button>
+</header>
+
+<!-- ============================== 文章 ============================== -->
+<main id="tab-posts">
+	<section class="panel">
+		<div class="panel-head">
+			<span>文章</span><span class="spacer"></span>
+			<button type="button" class="btn" id="btnNewPost">新建</button>
+		</div>
+		<div class="list" id="postList"></div>
+	</section>
+
+	<section class="panel">
+		<div class="panel-head"><span id="postHead">未选择</span></div>
+		<div class="panel-body">
+			<div class="grid2">
+				<div class="field">
+					<label for="p-title">标题 *</label>
+					<input type="text" id="p-title" />
+				</div>
+				<div class="field">
+					<label for="p-slug">slug（文件名，决定网址）*</label>
+					<input type="text" id="p-slug" class="mono" />
+				</div>
+			</div>
+			<div class="grid3">
+				<div class="field">
+					<label for="p-published">发布日期 *</label>
+					<input type="date" id="p-published" />
+				</div>
+				<div class="field">
+					<label for="p-updated">更新日期（留空不写）</label>
+					<input type="date" id="p-updated" />
+				</div>
+				<div class="field">
+					<label for="p-category">分类</label>
+					<input type="text" id="p-category" list="categories" />
+				</div>
+			</div>
+			<datalist id="categories"></datalist>
+			<div class="grid2">
+				<div class="field">
+					<label for="p-tags">标签（逗号分隔）</label>
+					<input type="text" id="p-tags" />
+				</div>
+				<div class="field">
+					<label for="p-image">封面图</label>
+					<input type="text" id="p-image" class="mono" placeholder="./images/xxx/cover.avif" />
+				</div>
+			</div>
+			<div class="field">
+				<label for="p-description">描述（进 meta description 和列表摘要）</label>
+				<textarea id="p-description" rows="2"></textarea>
+			</div>
+
+			<details>
+				<summary class="hint" style="cursor:pointer;margin-bottom:8px">更多字段（作者 / 转载 / 许可证 / 加密）</summary>
+				<div class="grid2">
+					<div class="field"><label for="p-author">作者</label><input type="text" id="p-author" /></div>
+					<div class="field"><label for="p-sourceLink">原文链接</label><input type="text" id="p-sourceLink" /></div>
+					<div class="field"><label for="p-licenseName">许可证名称</label><input type="text" id="p-licenseName" /></div>
+					<div class="field"><label for="p-licenseUrl">许可证链接</label><input type="text" id="p-licenseUrl" /></div>
+					<div class="field"><label for="p-password">访问密码（留空不加密）</label><input type="text" id="p-password" /></div>
+					<div class="field"><label for="p-passwordHint">密码提示</label><input type="text" id="p-passwordHint" /></div>
+					<div class="field"><label for="p-lang">语言（留空跟随站点）</label><input type="text" id="p-lang" placeholder="zh_CN" /></div>
+				</div>
+			</details>
+
+			<div class="checks">
+				<label><input type="checkbox" id="p-draft" /> 草稿（不发布）</label>
+				<label><input type="checkbox" id="p-pinned" /> 置顶</label>
+				<label><input type="checkbox" id="p-comment" checked /> 允许评论</label>
+			</div>
+
+			<div class="field">
+				<label for="body">正文（原始 Markdown，保存时一个字符都不会改写）</label>
+				<div class="editor-drop" id="postDrop">
+					<textarea id="body" spellcheck="false"></textarea>
+				</div>
+				<div class="hint">拖入或粘贴图片即自动上传到 <span class="mono">src/content/posts/images/&lt;slug&gt;/</span> 并插入相对路径。</div>
+			</div>
+
+			<div class="actions">
+				<button type="button" class="btn primary" id="btnSavePost">保存</button>
+				<button type="button" class="btn" id="btnPickPostImg">上传图片</button>
+				<input type="file" id="postImgInput" accept="image/*" multiple class="hidden" />
+				<a class="btn" id="btnPreviewPost" href="http://localhost:4321/" target="_blank" rel="noopener">预览</a>
+				<span class="spacer"></span>
+				<button type="button" class="btn danger" id="btnDelPost">删除</button>
+			</div>
+		</div>
+	</section>
+</main>
+
+<!-- ============================== 动态 ============================== -->
+<main id="tab-dynamics" class="hidden">
+	<section class="panel">
+		<div class="panel-head">
+			<span>动态</span><span class="spacer"></span>
+			<button type="button" class="btn" id="btnNewDyn">新建</button>
+		</div>
+		<div class="list" id="dynList"></div>
+	</section>
+
+	<section class="panel">
+		<div class="panel-head"><span id="dynHead">未选择</span></div>
+		<div class="panel-body">
+			<div class="grid2">
+				<div class="field">
+					<label for="d-published">发布时间（新建留空＝当前时间）</label>
+					<input type="text" id="d-published" class="mono" placeholder="2026-08-25T15:04:05+08:00" />
+				</div>
+				<div class="field">
+					<label for="d-location">位置</label>
+					<input type="text" id="d-location" />
+				</div>
+			</div>
+			<div class="checks"><label><input type="checkbox" id="d-pinned" /> 置顶</label></div>
+			<div class="field">
+				<label for="d-body">内容（原始 Markdown）</label>
+				<div class="editor-drop" id="dynDrop">
+					<textarea id="d-body" rows="12" spellcheck="false"></textarea>
+				</div>
+				<div class="hint">图片会传到 <span class="mono">public/dynamic-images/</span>，动态用站内绝对路径引用，自动进相册视图。</div>
+			</div>
+			<div class="actions">
+				<button type="button" class="btn primary" id="btnSaveDyn">保存</button>
+				<button type="button" class="btn" id="btnPickDynImg">上传图片</button>
+				<input type="file" id="dynImgInput" accept="image/*" multiple class="hidden" />
+				<a class="btn" id="btnPreviewDyn" href="http://localhost:4321/dynamic/" target="_blank" rel="noopener">预览动态页</a>
+				<span class="spacer"></span>
+				<button type="button" class="btn danger" id="btnDelDyn">删除</button>
+			</div>
+		</div>
+	</section>
+</main>
+
+<!-- ============================== 友链 ============================== -->
+<main id="tab-friends" class="hidden" style="grid-template-columns:1fr">
+	<section class="panel">
+		<div class="panel-head">
+			<span>友链</span>
+			<span class="hint" id="friendCount"></span>
+			<span class="spacer"></span>
+			<button type="button" class="btn" id="btnAddFriend">添加一条</button>
+			<button type="button" class="btn primary" id="btnSaveFriends">保存</button>
+		</div>
+		<div class="panel-body">
+			<p class="hint" style="margin-top:0">
+				权重越大越靠前。数据写入 <span class="mono">src/config/friends.json</span>。
+			</p>
+			<div id="friendList"></div>
+		</div>
+	</section>
+</main>
+
+<dialog id="publishDlg">
+	<div class="panel-head">发布上线</div>
+	<div class="panel-body">
+		<p class="hint" style="margin-top:0">
+			将提交 <span class="mono">src/content</span>、<span class="mono">src/config/friends.json</span>、<span class="mono">public/dynamic-images</span>
+			三处的改动并推送，Cloudflare 随后自动部署。
+		</p>
+		<div class="field">
+			<label for="commitMsg">提交信息</label>
+			<input type="text" id="commitMsg" />
+		</div>
+		<div class="field">
+			<span class="hint">将被提交的改动</span>
+			<pre class="out" id="publishFiles"></pre>
+		</div>
+		<div class="field hidden" id="othersWrap">
+			<span class="hint warn">以下改动不在范围内，不会被提交</span>
+			<pre class="out" id="publishOthers"></pre>
+		</div>
+		<div class="actions">
+			<button type="button" class="btn primary" id="btnDoPublish">提交并推送</button>
+			<button type="button" class="btn" id="btnCancelPublish">取消</button>
+		</div>
+	</div>
+</dialog>
+
+<script>
+	// 服务端启动时随机生成的一次性 token，随页面注入。
+	window.ADMIN_TOKEN = "__ADMIN_TOKEN__";
+</script>
+<script src="/ui.js" defer></script>
+</body>
+</html>
