@@ -4,7 +4,7 @@
 		"imgurl": "https://lucklog.cc/upload/MYSTICS.png?width=160",
 		"desc": "测试各种机器，给各位提供一些参考与建议",
 		"siteurl": "https://lucklog.cc/",
-		"tags": ["Blog"],
+		"tags": [],
 		"weight": 10,
 		"enabled": true
 	},
@@ -15,6 +15,15 @@
 		"siteurl": "https://blog.geekzs.com",
 		"tags": ["Blog"],
 		"weight": 10,
+		"enabled": true
+	},
+	{
+		"title": "XJJ后花园",
+		"imgurl": "https://blog.xjj.sh/favicon.svg",
+		"desc": "1000%业余程序员的研究基地",
+		"siteurl": "https://blog.xjj.sh",
+		"tags": [],
+		"weight": 0,
 		"enabled": true
 	}
 ]
