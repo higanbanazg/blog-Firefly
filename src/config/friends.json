@@ -22,7 +22,7 @@
 		"imgurl": "https://blog.xjj.sh/favicon.svg",
 		"desc": "1000%业余程序员的研究基地",
 		"siteurl": "https://blog.xjj.sh",
-		"tags": [],
+		"tags": ["Blog"],
 		"weight": 0,
 		"enabled": true
 	}
