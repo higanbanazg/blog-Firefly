@@ -50,11 +50,19 @@ export async function GET(context: APIContext): Promise<Response> {
 			}),
 		});
 	}
+	const site = context.site ?? "https://firefly.cuteleaf.cn";
+	// RSS 2.0 推荐 feed 自报家门。阅读器换源、W3C Feed Validator 校验、搜索引擎
+	// 认领 feed 都读这一项；缺了它，同一份 feed 从不同地址抓到会被当成两份。
+	// atom 命名空间必须一起声明，否则 atom: 前缀在 XML 里是未定义的。
+	const feedUrl = new URL("rss.xml", site).href;
+
 	return rss({
 		title: siteConfig.title,
 		description: siteConfig.subtitle || "No description",
-		site: context.site ?? "https://firefly.cuteleaf.cn",
-		customData: `<templateTheme>Firefly</templateTheme>
+		site,
+		xmlns: { atom: "http://www.w3.org/2005/Atom" },
+		customData: `<atom:link href="${feedUrl}" rel="self" type="application/rss+xml"/>
+		<templateTheme>Firefly</templateTheme>
 		<templateThemeVersion>${pkg.version}</templateThemeVersion>
 		<templateThemeUrl>https://github.com/CuteLeaf/Firefly</templateThemeUrl>
 		<lastBuildDate>${formatDateI18nWithTime(new Date())}</lastBuildDate>`,
