@@ -640,6 +640,20 @@ const CONTENT_PATHS = [
 	"public/dynamic-images",
 ];
 
+// git add 的 pathspec 只要有一个匹配不上，整条命令就 fatal 退出，一个文件都不
+// 会被暂存。public/dynamic-images 要等第一次上传动态配图才会出现，在那之前发
+// 布任何东西都会被它带崩——报的还是 "did not match any files"，跟你改的内容毫
+// 无关系，很难往这上面想。所以先把 git 根本匹配不到的路径筛掉。
+// 不能只看磁盘：目录被整个删空时它已从工作区消失，但这个删除本身还得提交，
+// 所以再问一次 git ls-files，只要索引里还有记录就保留。
+function resolvedContentPaths(): string[] {
+	return CONTENT_PATHS.filter(
+		(p) =>
+			fs.existsSync(path.join(ROOT, p)) ||
+			git(["ls-files", "--", p]).out.trim() !== "",
+	);
+}
+
 type GitStatus = {
 	branch: string;
 	content: string[];
@@ -657,7 +671,12 @@ function toLines(text: string): string[] {
 function gitStatus(): GitStatus {
 	const branch = git(["rev-parse", "--abbrev-ref", "HEAD"]);
 	const all = git(["status", "--porcelain"]);
-	const scoped = git(["status", "--porcelain", "--", ...CONTENT_PATHS]);
+	const scoped = git([
+		"status",
+		"--porcelain",
+		"--",
+		...resolvedContentPaths(),
+	]);
 	const content = toLines(scoped.out);
 	// 「发布上线」按钮不会带上的改动，单独列出来提醒一下。
 	const others = toLines(all.out).filter((line) => !content.includes(line));
@@ -677,7 +696,7 @@ function gitPublish(message: string): {
 	const msg = message.trim();
 	if (!msg) throw new Error("提交信息不能为空");
 
-	const add = git(["add", "--", ...CONTENT_PATHS]);
+	const add = git(["add", "--", ...resolvedContentPaths()]);
 	if (!add.ok) throw new Error(`git add 失败：${add.out}`);
 
 	const staged = git(["diff", "--cached", "--name-only"]);
