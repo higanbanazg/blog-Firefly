@@ -58,7 +58,11 @@ export async function GET(context: APIContext): Promise<Response> {
 
 	return rss({
 		title: siteConfig.title,
-		description: siteConfig.subtitle || "No description",
+		// RSS 频道简介单独写在这里，不复用 siteConfig 的任何字段：
+		//   subtitle 留空是刻意的 —— 补上会让首页标签页变成「title - subtitle」
+		//   description 那句是写给搜索引擎和 OG 的，措辞和订阅列表要的不是一回事
+		// 所以那两个都不动，只有阅读器订阅列表里显示这一句。
+		description: "higanbana的记录留白",
 		site,
 		xmlns: { atom: "http://www.w3.org/2005/Atom" },
 		customData: `<atom:link href="${feedUrl}" rel="self" type="application/rss+xml"/>
