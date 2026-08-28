@@ -25,5 +25,14 @@
 		"tags": ["Blog"],
 		"weight": 0,
 		"enabled": true
+	},
+	{
+		"title": "桃之若｜若汐的个人博客",
+		"imgurl": "https://taozhiruo.com/favicon.svg",
+		"desc": "写一点光，也写一点生活秩序。",
+		"siteurl": "https://taozhiruo.com/",
+		"tags": ["Blog"],
+		"weight": 0,
+		"enabled": true
 	}
 ]
