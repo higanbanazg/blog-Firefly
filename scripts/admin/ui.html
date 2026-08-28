@@ -107,7 +107,9 @@ main { display: grid; grid-template-columns: 300px 1fr; gap: 14px; padding: 14px
 .field > label { font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
 /* 友链行的 label 直接包住 input（省掉生成唯一 id），所以 input 要把
    label 那份 12px/muted 的字重新覆盖回正常值 */
-.field > label input { font-size: 14px; color: var(--text); }
+.field > label input, .field > label select, .field > label textarea {
+	font-size: 14px; color: var(--text);
+}
 .grow { flex: 1; }
 .imgdir { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
 .imgdir input { font-size: 13px; }
@@ -144,6 +146,12 @@ main { display: grid; grid-template-columns: 300px 1fr; gap: 14px; padding: 14px
 .friend-row.off { opacity: .55; }
 .friend-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 .friend-head img { width: 34px; height: 34px; border-radius: 8px; object-fit: cover; background: var(--bg); }
+.ad-row { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; margin-bottom: 10px; }
+.ad-row.off { opacity: .55; }
+.ad-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.ad-head img { width: 56px; height: 32px; border-radius: 6px; object-fit: cover; background: var(--bg); }
+.ad-badge { font-size: 11px; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.ad-badge.on { color: var(--primary); border-color: var(--primary); background: var(--primary-soft); }
 .mono { font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
 pre.out {
 	background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
@@ -164,6 +172,7 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 		<button type="button" class="tab on" data-tab="posts">文章</button>
 		<button type="button" class="tab" data-tab="dynamics">动态</button>
 		<button type="button" class="tab" data-tab="friends">友链</button>
+		<button type="button" class="tab" data-tab="ads">广告</button>
 	</div>
 	<div class="spacer"></div>
 	<span id="gitChip" class="git-chip">读取中…</span>
@@ -331,12 +340,38 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 	</section>
 </main>
 
+<!-- ============================== 广告 ============================== -->
+<main id="tab-ads" class="hidden" style="grid-template-columns:1fr">
+	<section class="panel">
+		<div class="panel-head">
+			<span>侧边栏广告位</span>
+			<span class="hint" id="adCount"></span>
+			<span class="spacer"></span>
+			<button type="button" class="btn" id="btnAddAd">添加一条</button>
+			<button type="button" class="btn primary" id="btnSaveAds">保存</button>
+		</div>
+		<div class="panel-body">
+			<p class="hint" style="margin-top:0">
+				数据写入 <span class="mono">src/config/ads.json</span>，图片存到
+				<span class="mono">public/slot-images/</span>。<b>保存只是写文件，要点「发布上线」推送、等 Cloudflare 构建完才会出现在站上。</b>
+			</p>
+			<p class="hint">
+				数组顺序就是渲染顺序，广告排在该栏所有组件之前。同一栏放两条以上会把资料卡、分类这些挤到很下面，右侧栏尤其明显。
+				图片建议 16:9 前后、宽度 640px 以内；GIF / 动图不会被转码，原样上传。
+			</p>
+			<input type="file" id="adImgInput" accept="image/*" class="hidden" />
+			<div id="adList"></div>
+		</div>
+	</section>
+</main>
+
 <dialog id="publishDlg">
 	<div class="panel-head">发布上线</div>
 	<div class="panel-body">
 		<p class="hint" style="margin-top:0">
-			将提交 <span class="mono">src/content</span>、<span class="mono">src/config/friends.json</span>、<span class="mono">public/dynamic-images</span>
-			三处的改动并推送，Cloudflare 随后自动部署。
+			将提交 <span class="mono">src/content</span>、<span class="mono">src/config/friends.json</span>、
+			<span class="mono">src/config/ads.json</span>、<span class="mono">public/dynamic-images</span>、
+			<span class="mono">public/slot-images</span> 的改动并推送，Cloudflare 随后自动部署。
 		</p>
 		<div class="field">
 			<label for="commitMsg">提交信息</label>

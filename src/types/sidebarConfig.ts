@@ -75,6 +75,26 @@ export type AdConfig = {
 	expireDate?: string; // 过期时间 (ISO 8601 格式)
 };
 
+// 广告位（数据本体在 src/config/ads.json，由 pnpm admin 后台读写）
+// 这里的字段是「扁平」的，跟上面嵌套的 AdConfig 不一样：后台要逐字段拼 JSON，
+// 平铺比嵌套好写也好校验，翻译成 AdConfig 的活儿放在 sidebarConfig.ts 里做。
+export type AdSlot = {
+	note: string; // 内部备注（广告主、到期日之类），只在后台可见，不会出现在页面上
+	enabled: boolean; // 是否上线
+	side: "left" | "right" | "mobile"; // 放哪一栏，mobile 指移动端底部
+	position: "top" | "sticky"; // top=固定在栏顶，sticky=跟随页面滚动
+	showTitle: boolean; // 是否显示标题栏
+	title: string; // 标题栏文字
+	content: string; // 图片下方的说明文字，留空则不显示
+	imgSrc: string; // 图片地址，留空则是纯文字广告
+	imgAlt: string; // 图片替代文字
+	imgLink: string; // 点图片跳转的地址
+	linkText: string; // 底部按钮文字
+	linkUrl: string; // 底部按钮地址，与 linkText 都填了才显示按钮
+	closable: boolean; // 右上角是否有关闭按钮
+	fullBleed: boolean; // 图片顶满卡片、不留内边距
+};
+
 export type SidebarLayoutConfig = {
 	enable: boolean; // 是否启用侧边栏
 	position: "left" | "right" | "both"; // 侧边栏位置：左侧、右侧或双侧
