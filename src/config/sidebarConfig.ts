@@ -1,4 +1,66 @@
-import type { SidebarLayoutConfig } from "../types/sidebarConfig";
+import type {
+	AdSlot,
+	SidebarLayoutConfig,
+	WidgetComponentConfig,
+} from "../types/sidebarConfig";
+import adsData from "./ads.json";
+
+// 广告位数据放在同目录的 ads.json，没有直接写进下面的数组，理由跟 friends.json
+// 一样：pnpm admin 后台要能增删改广告，读写 JSON 是两行代码；而这个文件是带满
+// 行注释的嵌套 TS 字面量，让脚本解析再拼回来很容易改坏——何况它还管着个人资料、
+// 分类、标签、日历、文章目录，写坏一次整个侧边栏就没了。
+//
+// 主题原来的广告组件一个字没动。下面只是把 ads.json 的扁平字段翻译成
+// Advertisement.astro 本来就吃的那个 AdConfig，空字段一律不输出，让组件走它
+// 自己的「没配就不渲染」分支。
+const isExternalUrl = (u: string): boolean => /^https?:\/\//i.test(u);
+
+const toAdWidget = (ad: AdSlot): WidgetComponentConfig => ({
+	type: "advertisement",
+	enable: true,
+	showTitle: ad.showTitle,
+	position: ad.position,
+	showOnPostPage: true,
+	specificConfig: {
+		ad: {
+			...(ad.title ? { title: ad.title } : {}),
+			...(ad.content ? { content: ad.content } : {}),
+			...(ad.imgSrc
+				? {
+						image: {
+							src: ad.imgSrc,
+							alt: ad.imgAlt || ad.title || "",
+							...(ad.imgLink
+								? { link: ad.imgLink, external: isExternalUrl(ad.imgLink) }
+								: {}),
+						},
+					}
+				: {}),
+			...(ad.linkText && ad.linkUrl
+				? {
+						link: {
+							text: ad.linkText,
+							url: ad.linkUrl,
+							external: isExternalUrl(ad.linkUrl),
+						},
+					}
+				: {}),
+			closable: ad.closable,
+			// displayCount 不开放配置，固定不限次。它的计数键用的是每页随机生成的
+			// widgetId，既按页面各算一份、又每次构建全体重置，限次根本限不住；主题
+			// 自带的那两个示例取的也是 -1。
+			displayCount: -1,
+			...(ad.fullBleed ? { padding: { all: "0" } } : {}),
+		},
+	},
+});
+
+// 数组顺序即渲染顺序，所以广告统一排在各栏最前面。想让它跟着页面滚动就把
+// position 设成 sticky——sticky 组件本来就排在所有 top 组件之后。
+const adsFor = (side: AdSlot["side"]): WidgetComponentConfig[] =>
+	(adsData as AdSlot[])
+		.filter((a) => a.enabled && a.side === side)
+		.map(toAdWidget);
 
 /**
  * 侧边栏布局配置
@@ -38,6 +100,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 	// hideOnNonPostPage 是否在非文章详情页隐藏该组件（true=仅文章详情页显示）
 	// specificConfig 组件专属配置
 	leftComponents: [
+		...adsFor("left"),
 		{
 			// 组件类型：用户资料组件
 			type: "profile",
@@ -92,6 +155,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 
 	// 右侧边栏组件配置列表
 	rightComponents: [
+		...adsFor("right"),
 		{
 			// 组件类型：最新动态组件
 			type: "dynamic",
@@ -172,6 +236,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 	// 移动端底部组件配置列表
 	// 这些组件只在移动端(<768px)显示在页面底部，独立于左右侧边栏配置
 	mobileBottomComponents: [
+		...adsFor("mobile"),
 		{
 			// 组件类型：用户资料组件
 			type: "profile",

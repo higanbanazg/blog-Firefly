@@ -1,0 +1,50 @@
+[
+	{
+		"note": "示例：完整形态（标题 + 图 + 文案 + 按钮）",
+		"enabled": false,
+		"side": "right",
+		"position": "top",
+		"showTitle": true,
+		"title": "赞助",
+		"content": "示例文案：这里可以写一两句广告说明，两行以内最好看。",
+		"imgSrc": "/assets/images/widget-demo.svg",
+		"imgAlt": "示例广告",
+		"imgLink": "https://example.com",
+		"linkText": "了解详情",
+		"linkUrl": "https://example.com",
+		"closable": true,
+		"fullBleed": false
+	},
+	{
+		"note": "示例：纯图片形态，最接近常见广告样式",
+		"enabled": false,
+		"side": "right",
+		"position": "top",
+		"showTitle": false,
+		"title": "",
+		"content": "",
+		"imgSrc": "/assets/images/widget-demo-2.svg",
+		"imgAlt": "示例广告二",
+		"imgLink": "https://example.com",
+		"linkText": "",
+		"linkUrl": "",
+		"closable": true,
+		"fullBleed": true
+	},
+	{
+		"note": "示例：纯文字形态，看着像公告卡",
+		"enabled": false,
+		"side": "left",
+		"position": "top",
+		"showTitle": true,
+		"title": "推广",
+		"content": "示例文案：这是纯文字广告位，没有图片，靠一段说明和一个按钮承载。适合放自荐内容、征友链、或者不方便出图的文字推广。",
+		"imgSrc": "",
+		"imgAlt": "",
+		"imgLink": "",
+		"linkText": "了解一下",
+		"linkUrl": "https://example.com",
+		"closable": true,
+		"fullBleed": false
+	}
+]

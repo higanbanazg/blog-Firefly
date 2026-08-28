@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180" role="img" aria-label="示例广告图二">
+  <defs>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="60%" stop-color="#0e7490"/>
+      <stop offset="100%" stop-color="#14b8a6"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="180" rx="12" fill="url(#g2)"/>
+  <g stroke="#5eead4" stroke-width="1.2" opacity="0.22" fill="none">
+    <path d="M0 132 L60 108 L120 122 L180 78 L240 96 L320 52"/>
+    <path d="M0 156 L60 138 L120 148 L180 116 L240 130 L320 96"/>
+  </g>
+  <circle cx="286" cy="30" r="46" fill="#5eead4" opacity="0.10"/>
+  <g transform="translate(24,26)">
+    <rect width="32" height="32" rx="8" fill="#5eead4"/>
+    <path d="M9 22 L16 10 L23 22" stroke="#0f172a" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="66" y="48" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+        font-size="18" font-weight="700" fill="#f0fdfa">星港加速 · 示例</text>
+  <text x="24" y="94" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+        font-size="21" font-weight="700" fill="#fff">首月 9.9 元起</text>
+  <text x="24" y="118" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+        font-size="13" fill="#99f6e4">占位素材，不是真实商家</text>
+  <g transform="translate(24,134)">
+    <rect width="94" height="26" rx="13" fill="#5eead4"/>
+    <text x="47" y="17.5" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif"
+          font-size="12" font-weight="700" fill="#0f172a">DEMO ONLY</text>
+  </g>
+</svg>

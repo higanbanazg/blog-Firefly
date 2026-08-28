@@ -26,6 +26,7 @@ import matter from "gray-matter";
 import { pinyin } from "pinyin-pro";
 import sharp from "sharp";
 import { siteConfig } from "../../src/config/siteConfig";
+import type { AdSlot } from "../../src/types/sidebarConfig";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..", "..");
@@ -38,6 +39,12 @@ const DYNAMIC_DIR = path.join(ROOT, "src", "content", "dynamic");
 // 目录名不能叫 public/dynamic —— 那会和 /dynamic/ 页面路由撞车。
 const DYNAMIC_IMAGES_DIR = path.join(ROOT, "public", "dynamic-images");
 const FRIENDS_JSON = path.join(ROOT, "src", "config", "friends.json");
+const ADS_JSON = path.join(ROOT, "src", "config", "ads.json");
+// 广告图和动态图一样要走 public/，不经过 Astro 优化——广告素材经常是动图，
+// 而且换图比换文章勤，不值得为它触发图片重新编译。
+// 目录名故意不叫 ads/banner/promo：uBlock 这类拦截器的规则直接按路径里的
+// 这些词命中，图会被读者的浏览器拦掉，而你本地一切正常，根本查不出来。
+const AD_IMAGES_DIR = path.join(ROOT, "public", "slot-images");
 const UI_HTML = path.join(HERE, "ui.html");
 const UI_JS = path.join(HERE, "ui.js");
 
@@ -530,6 +537,89 @@ function saveFriends(list: FriendPayload[]): { count: number } {
 	return { count: cleaned.length };
 }
 
+/* ---------------------------------- 广告 ---------------------------------- */
+
+// 广告数据和友链一样单独放 JSON，理由见 CLAUDE.md：sidebarConfig.ts 是带满行
+// 注释的嵌套 TS 字面量，脚本解析再拼回来很容易改坏，而它还管着侧边栏其它所有
+// 组件。ads.json 里存的是扁平字段，翻译成主题原本那个 AdConfig 的活儿在
+// src/config/sidebarConfig.ts 里做，广告组件本身没动过。
+const AD_SIDES = new Set<AdSlot["side"]>(["left", "right", "mobile"]);
+
+function readAds(): AdSlot[] {
+	if (!fs.existsSync(ADS_JSON)) return [];
+	return JSON.parse(fs.readFileSync(ADS_JSON, "utf8")) as AdSlot[];
+}
+
+// 逐字段拼的理由同 serializeFriends：JSON.stringify 的折行和 Biome 对不上。
+function serializeAds(list: AdSlot[]): string {
+	if (list.length === 0) return "[]\n";
+	const items = list.map((a) => {
+		const lines = [
+			`\t\t"note": ${JSON.stringify(a.note)},`,
+			`\t\t"enabled": ${a.enabled},`,
+			`\t\t"side": ${JSON.stringify(a.side)},`,
+			`\t\t"position": ${JSON.stringify(a.position)},`,
+			`\t\t"showTitle": ${a.showTitle},`,
+			`\t\t"title": ${JSON.stringify(a.title)},`,
+			`\t\t"content": ${JSON.stringify(a.content)},`,
+			`\t\t"imgSrc": ${JSON.stringify(a.imgSrc)},`,
+			`\t\t"imgAlt": ${JSON.stringify(a.imgAlt)},`,
+			`\t\t"imgLink": ${JSON.stringify(a.imgLink)},`,
+			`\t\t"linkText": ${JSON.stringify(a.linkText)},`,
+			`\t\t"linkUrl": ${JSON.stringify(a.linkUrl)},`,
+			`\t\t"closable": ${a.closable},`,
+			`\t\t"fullBleed": ${a.fullBleed}`,
+		];
+		return `\t{\n${lines.join("\n")}\n\t}`;
+	});
+	return `[\n${items.join(",\n")}\n]\n`;
+}
+
+function saveAds(list: AdSlot[]): { count: number; enabled: number } {
+	if (!Array.isArray(list)) throw new Error("广告数据必须是数组");
+	const cleaned = list.map((a, i) => {
+		const ad: AdSlot = {
+			note: (a.note || "").trim(),
+			enabled: a.enabled === true,
+			side: AD_SIDES.has(a.side) ? a.side : "right",
+			position: a.position === "sticky" ? "sticky" : "top",
+			showTitle: a.showTitle === true,
+			title: (a.title || "").trim(),
+			content: (a.content || "").trim(),
+			imgSrc: (a.imgSrc || "").trim(),
+			imgAlt: (a.imgAlt || "").trim(),
+			imgLink: (a.imgLink || "").trim(),
+			linkText: (a.linkText || "").trim(),
+			linkUrl: (a.linkUrl || "").trim(),
+			closable: a.closable !== false,
+			fullBleed: a.fullBleed === true,
+		};
+		// 只卡已上线的那几条。标题、文案、图片全空会渲染成一张空卡片挂在侧边栏
+		// 上；但没上线的广告压根不会出现在页面里，草稿写一半就存很正常，不拦。
+		const n = i + 1;
+		if (ad.enabled) {
+			if (!ad.title && !ad.content && !ad.imgSrc) {
+				throw new Error(`第 ${n} 条广告已上线，但标题、文案、图片全是空的`);
+			}
+			if (ad.showTitle && !ad.title) {
+				throw new Error(`第 ${n} 条广告勾了显示标题，但标题是空的`);
+			}
+			if (ad.linkText && !ad.linkUrl) {
+				throw new Error(`第 ${n} 条广告填了按钮文字，但没填按钮链接`);
+			}
+			if (ad.linkUrl && !ad.linkText) {
+				throw new Error(`第 ${n} 条广告填了按钮链接，但没填按钮文字`);
+			}
+		}
+		return ad;
+	});
+	fs.writeFileSync(ADS_JSON, serializeAds(cleaned));
+	return {
+		count: cleaned.length,
+		enabled: cleaned.filter((a) => a.enabled).length,
+	};
+}
+
 /* ---------------------------------- 图片 ---------------------------------- */
 
 type UploadPayload = {
@@ -607,6 +697,18 @@ async function uploadImage(payload: UploadPayload): Promise<UploadResult> {
 		};
 	}
 
+	if (payload.kind === "ad") {
+		fs.mkdirSync(AD_IMAGES_DIR, { recursive: true });
+		const target = uniquePath(AD_IMAGES_DIR, enc.name);
+		fs.writeFileSync(target, enc.bytes);
+		return {
+			markdown: `/slot-images/${path.basename(target)}`,
+			rawBytes: raw.length,
+			outBytes: enc.bytes.length,
+			converted: enc.converted,
+		};
+	}
+
 	fs.mkdirSync(DYNAMIC_IMAGES_DIR, { recursive: true });
 	const target = uniquePath(DYNAMIC_IMAGES_DIR, enc.name);
 	fs.writeFileSync(target, enc.bytes);
@@ -637,7 +739,9 @@ function git(args: string[]): { ok: boolean; out: string } {
 const CONTENT_PATHS = [
 	"src/content",
 	"src/config/friends.json",
+	"src/config/ads.json",
 	"public/dynamic-images",
+	"public/slot-images",
 ];
 
 // git add 的 pathspec 只要有一个匹配不上，整条命令就 fatal 退出，一个文件都不
@@ -759,6 +863,7 @@ async function route(url: URL, req: IncomingMessage): Promise<unknown> {
 				posts: listPosts(),
 				dynamics: listDynamics(),
 				friends: readFriends(),
+				ads: readAds(),
 				git: gitStatus(),
 			};
 		}
@@ -784,6 +889,9 @@ async function route(url: URL, req: IncomingMessage): Promise<unknown> {
 	}
 	if (p === "/api/friends/save") {
 		return saveFriends(body.friends as FriendPayload[]);
+	}
+	if (p === "/api/ads/save") {
+		return saveAds(body.ads as AdSlot[]);
 	}
 	if (p === "/api/upload") {
 		return uploadImage(body as unknown as UploadPayload);

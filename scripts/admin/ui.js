@@ -15,6 +15,7 @@ let state = {
 	posts: [],
 	dynamics: [],
 	friends: [],
+	ads: [],
 	git: null,
 	site: "",
 	today: "",
@@ -60,6 +61,7 @@ async function reload() {
 	renderPostList();
 	renderDynList();
 	renderFriends();
+	renderAds();
 	const cats = [...new Set(state.posts.map((p) => p.category).filter(Boolean))];
 	$("categories").innerHTML = cats
 		.map((c) => `<option value="${esc(c)}">`)
@@ -382,6 +384,15 @@ function sizeNote(r) {
 	return `（${kb(r.rawBytes)} → ${kb(r.outBytes)}，省 ${cut}%）`;
 }
 
+function readDataUrl(file) {
+	return new Promise((ok, no) => {
+		const r = new FileReader();
+		r.onload = () => ok(r.result);
+		r.onerror = () => no(new Error(`读取 ${file.name} 失败`));
+		r.readAsDataURL(file);
+	});
+}
+
 // kind 决定图片落到哪：
 //   post    -> src/content/posts/images/<目录>/，返回 ./images/<目录>/x.avif
 //              相对路径，Astro 会接手做优化。目录取「图片目录」输入框，默认
@@ -389,16 +400,14 @@ function sizeNote(r) {
 //   dynamic -> public/dynamic-images/，返回 /dynamic-images/x.avif 站内绝对
 //              路径。动态的图片是被 dynamic-data.ts 抽出来原样塞进 <img src>，
 //              不走 Astro 优化，所以必须放在 public 下
+//   ad      -> public/slot-images/，返回 /slot-images/x.avif。同样不走
+//              Astro 优化；目录名避开 ads/banner/promo 这些词，否则会被
+//              广告拦截器按路径命中，读者那边图直接不显示
 async function uploadFiles(files, kind, area) {
 	for (const file of files) {
 		if (!file.type.startsWith("image/")) continue;
 		try {
-			const data = await new Promise((ok, no) => {
-				const r = new FileReader();
-				r.onload = () => ok(r.result);
-				r.onerror = () => no(new Error(`读取 ${file.name} 失败`));
-				r.readAsDataURL(file);
-			});
+			const data = await readDataUrl(file);
 			const slug = kind === "post" ? $("p-slug").value.trim() || "misc" : "";
 			const dir = kind === "post" ? $("p-imgdir").value.trim() : "";
 			const r = await post("/api/upload", {
@@ -554,6 +563,199 @@ $("btnSaveFriends").onclick = async () => {
 	}
 };
 
+/* -------------------------------- 广告 -------------------------------- */
+
+// 侧边栏广告位。数据写 src/config/ads.json，由 src/config/sidebarConfig.ts
+// 翻译成主题原本的 AdConfig —— 广告组件本身没改过。
+//
+// 有意不暴露 displayCount（每人限看 N 次）：它的计数键是每次渲染随机生成的
+// widgetId，按页面各算一份、每次构建全体重置、swup 翻页还会重复计数，限不住，
+// 后端固定写 -1。
+
+const AD_SIDES = [
+	["right", "右侧栏"],
+	["left", "左侧栏"],
+	["mobile", "移动端底部"],
+];
+const AD_POSITIONS = [
+	["top", "固定在栏顶"],
+	["sticky", "跟随页面滚动"],
+];
+
+const options = (list, cur) =>
+	list
+		.map(
+			([v, t]) =>
+				`<option value="${v}"${v === cur ? " selected" : ""}>${t}</option>`,
+		)
+		.join("");
+
+function renderAds() {
+	const live = state.ads.filter((a) => a.enabled).length;
+	$("adCount").textContent = state.ads.length
+		? `${state.ads.length} 条，${live} 条已上线`
+		: "";
+
+	const rows = state.ads.map(
+		(a, i) => `<div class="ad-row${a.enabled ? "" : " off"}" data-i="${i}">
+			<div class="ad-head">
+				${a.imgSrc ? `<img src="${esc(a.imgSrc)}" alt="" />` : ""}
+				<strong class="grow">${esc(a.note || a.title || "(未命名广告位)")}</strong>
+				<span class="ad-badge${a.enabled ? " on" : ""}">${a.enabled ? "已上线" : "未上线"}</span>
+				<button type="button" class="btn" data-act="up">↑</button>
+				<button type="button" class="btn" data-act="down">↓</button>
+				<button type="button" class="btn danger" data-act="del">删除</button>
+			</div>
+			<div class="grid2">
+				<div class="field"><label>备注（只在后台可见，不会出现在页面上）<input type="text" data-k="note" value="${esc(a.note)}" placeholder="例：某某云 8 月，到期 9/30" /></label></div>
+				<div class="field"><label>放哪一栏<select data-k="side">${options(AD_SIDES, a.side)}</select></label></div>
+				<div class="field"><label>标题栏文字<input type="text" data-k="title" value="${esc(a.title)}" /></label></div>
+				<div class="field"><label>位置<select data-k="position">${options(AD_POSITIONS, a.position)}</select></label></div>
+			</div>
+			<div class="field"><label>说明文字（留空则不显示）<textarea data-k="content" rows="2">${esc(a.content)}</textarea></label></div>
+			<div class="grid2">
+				<div class="field">
+					<label>图片地址（留空 = 纯文字广告）<input type="text" data-k="imgSrc" value="${esc(a.imgSrc)}" /></label>
+					<div class="imgdir">
+						<button type="button" class="btn" data-act="pick">上传图片</button>
+						<span class="hint">转 AVIF；GIF / SVG 原样保留</span>
+					</div>
+				</div>
+				<div class="field"><label>点图片跳转到<input type="text" data-k="imgLink" value="${esc(a.imgLink)}" /></label></div>
+				<div class="field"><label>图片替代文字<input type="text" data-k="imgAlt" value="${esc(a.imgAlt)}" /></label></div>
+				<div class="field"><label>按钮文字（和按钮链接要么都填、要么都空）<input type="text" data-k="linkText" value="${esc(a.linkText)}" /></label></div>
+				<div class="field"><label>按钮链接<input type="text" data-k="linkUrl" value="${esc(a.linkUrl)}" /></label></div>
+			</div>
+			<div class="checks">
+				<label><input type="checkbox" data-k="enabled" ${a.enabled ? "checked" : ""} /> 上线</label>
+				<label><input type="checkbox" data-k="showTitle" ${a.showTitle ? "checked" : ""} /> 显示标题栏</label>
+				<label><input type="checkbox" data-k="closable" ${a.closable ? "checked" : ""} /> 可关闭</label>
+				<label><input type="checkbox" data-k="fullBleed" ${a.fullBleed ? "checked" : ""} /> 图片顶满卡片</label>
+			</div>
+		</div>`,
+	);
+	$("adList").innerHTML =
+		rows.join("") || '<p class="hint">还没有广告位，点右上角「添加一条」。</p>';
+	// 图挂了就藏掉，免得留一堆碎图标
+	for (const img of $("adList").querySelectorAll(".ad-head img")) {
+		img.addEventListener("error", () => {
+			img.style.visibility = "hidden";
+		});
+	}
+}
+
+function collectAds() {
+	return [...document.querySelectorAll(".ad-row")].map((row) => {
+		const v = (k) => row.querySelector(`[data-k="${k}"]`).value;
+		const on = (k) => row.querySelector(`[data-k="${k}"]`).checked;
+		return {
+			note: v("note"),
+			enabled: on("enabled"),
+			side: v("side"),
+			position: v("position"),
+			showTitle: on("showTitle"),
+			title: v("title"),
+			content: v("content"),
+			imgSrc: v("imgSrc"),
+			imgAlt: v("imgAlt"),
+			imgLink: v("imgLink"),
+			linkText: v("linkText"),
+			linkUrl: v("linkUrl"),
+			closable: on("closable"),
+			fullBleed: on("fullBleed"),
+		};
+	});
+}
+
+// 「上传图片」按的是哪一行。文件选择框全局共用一个，从弹出到 onchange 之间
+// 没法把行号带过去，只能先记下来。
+let adPickRow = -1;
+
+$("adList").addEventListener("click", (e) => {
+	const btn = e.target.closest("[data-act]");
+	if (!btn) return;
+	const i = Number(btn.closest(".ad-row").dataset.i);
+	const act = btn.dataset.act;
+	if (act === "pick") {
+		adPickRow = i;
+		$("adImgInput").click();
+		return;
+	}
+	// 先从 DOM 收一遍，把用户尚未保存的编辑一起带上，否则增删会丢输入
+	const list = collectAds();
+	if (act === "del") {
+		if (!confirm(`删除广告位「${list[i].note || list[i].title || ""}」？`)) {
+			return;
+		}
+		list.splice(i, 1);
+	} else if (act === "up" && i > 0) {
+		[list[i - 1], list[i]] = [list[i], list[i - 1]];
+	} else if (act === "down" && i < list.length - 1) {
+		[list[i + 1], list[i]] = [list[i], list[i + 1]];
+	}
+	state.ads = list;
+	renderAds();
+});
+
+$("adImgInput").onchange = async (e) => {
+	const file = e.target.files[0];
+	e.target.value = "";
+	if (!file || adPickRow < 0) return;
+	const i = adPickRow;
+	adPickRow = -1;
+	try {
+		const data = await readDataUrl(file);
+		const r = await post("/api/upload", {
+			kind: "ad",
+			slug: "",
+			dir: "",
+			filename: file.name,
+			data,
+		});
+		const list = collectAds();
+		if (!list[i]) return;
+		list[i].imgSrc = r.markdown;
+		state.ads = list;
+		renderAds();
+		toast(`已上传 ${r.markdown} ${sizeNote(r)}`, "ok");
+	} catch (err) {
+		toast(err.message, "err");
+	}
+};
+
+$("btnAddAd").onclick = () => {
+	state.ads = [
+		...collectAds(),
+		{
+			note: "",
+			enabled: false, // 新建的默认不上线，填完再勾
+			side: "right",
+			position: "top",
+			showTitle: true,
+			title: "赞助",
+			content: "",
+			imgSrc: "",
+			imgAlt: "",
+			imgLink: "",
+			linkText: "",
+			linkUrl: "",
+			closable: true,
+			fullBleed: false,
+		},
+	];
+	renderAds();
+};
+
+$("btnSaveAds").onclick = async () => {
+	try {
+		const r = await post("/api/ads/save", { ads: collectAds() });
+		await reload();
+		toast(`已保存 ${r.count} 条广告位，其中 ${r.enabled} 条已上线`, "ok");
+	} catch (err) {
+		toast(err.message, "err");
+	}
+};
+
 /* -------------------------------- 发布 -------------------------------- */
 
 $("btnPublish").onclick = async () => {
@@ -600,7 +802,7 @@ for (const tab of document.querySelectorAll(".tab")) {
 		for (const t of document.querySelectorAll(".tab")) {
 			t.classList.toggle("on", t === tab);
 		}
-		for (const name of ["posts", "dynamics", "friends"]) {
+		for (const name of ["posts", "dynamics", "friends", "ads"]) {
 			$(`tab-${name}`).classList.toggle("hidden", name !== tab.dataset.tab);
 		}
 	};
@@ -617,7 +819,9 @@ document.addEventListener("keydown", (e) => {
 	if (!$("tab-posts").classList.contains("hidden")) $("btnSavePost").click();
 	else if (!$("tab-dynamics").classList.contains("hidden"))
 		$("btnSaveDyn").click();
-	else $("btnSaveFriends").click();
+	else if (!$("tab-friends").classList.contains("hidden"))
+		$("btnSaveFriends").click();
+	else $("btnSaveAds").click();
 });
 
 reload().catch((err) => toast(`加载失败：${err.message}`, "err"));

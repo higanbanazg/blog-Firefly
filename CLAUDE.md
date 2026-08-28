@@ -41,7 +41,7 @@ All features are toggled/configured via TypeScript files in `src/config/`, expor
 - `sidebarConfig.ts` — sidebar layout (left/right/both, widget ordering)
 - `commentConfig.ts`, `analyticsConfig.ts`, `fontConfig.ts`, etc.
 
-One exception to the TS-only rule: friend-link *data* lives in `src/config/friends.json`, and `friendsConfig.ts` only types it and sorts it. The split exists so `pnpm admin` can rewrite friends without parsing a TS array literal. Edit either the JSON directly or the admin UI.
+Two exceptions to the TS-only rule, both driven by `pnpm admin`: friend-link *data* lives in `src/config/friends.json` (`friendsConfig.ts` only types and sorts it), and sidebar ad-slot data lives in `src/config/ads.json` (`sidebarConfig.ts` imports it and splices it into the component arrays). The split exists so the admin can rewrite them without parsing a TS literal. Edit either the JSON directly or the admin UI.
 
 ### Layout System
 
@@ -95,7 +95,7 @@ A local-only editor for posts, dynamics, and friend links. `scripts/admin/server
 
 **Security model.** Binds `127.0.0.1` only. Every `/api/` call needs a per-process random token, injected into the page at request time and sent as `X-Admin-Token`, plus an `Origin` check — so a random page in the same browser cannot drive it. All paths are validated with `insideDir()` before any read, write, or delete.
 
-**Image routing differs by kind, and this matters.** Post images go to `src/content/posts/images/<dir>/` and are referenced relatively (`./images/<dir>/x.avif`) so Astro optimizes them. Dynamic images go to `public/dynamic-images/` and are referenced site-absolutely (`/dynamic-images/x.avif`), because `src/utils/dynamic-data.ts` extracts them by regex and passes `src` straight into `<img>` with no optimization. The directory is `dynamic-images`, not `dynamic`, to avoid colliding with the `/dynamic/` page route.
+**Image routing differs by kind, and this matters.** Post images go to `src/content/posts/images/<dir>/` and are referenced relatively (`./images/<dir>/x.avif`) so Astro optimizes them. Dynamic images go to `public/dynamic-images/` and are referenced site-absolutely (`/dynamic-images/x.avif`), because `src/utils/dynamic-data.ts` extracts them by regex and passes `src` straight into `<img>` with no optimization. The directory is `dynamic-images`, not `dynamic`, to avoid colliding with the `/dynamic/` page route. Ad images are a third case: `public/slot-images/`, referenced as `/slot-images/x.avif`. The name deliberately avoids `ads`/`banner`/`promo` — uBlock and AdGuard match those substrings in a URL path, so the image would vanish for readers while looking fine locally.
 
 **Uploads are re-encoded to AVIF** (`sharp`, quality 60, width capped at 1600 with no upscaling, EXIF rotation baked in). The original filename is kept — only the extension changes. Three types pass through untouched: `.gif` (sharp would keep only the first frame), `.svg` (rasterizing a vector destroys it), and `.avif` (already the target; re-encoding is lossy-on-lossy). If the AVIF comes out no smaller than the input, the original is kept instead. Encoding failures fall back to the raw bytes rather than failing the upload.
 
@@ -103,7 +103,13 @@ A local-only editor for posts, dynamics, and friend links. `scripts/admin/server
 
 **Dynamic timestamps must carry the `+08:00` offset.** `published` is `z.date()`; an offset-less `2026-08-20 17:23:13` parses as UTC and then renders 8 hours late. The server writes full ISO strings and preserves the raw `published` line on read rather than round-tripping through a `Date`.
 
-**Publishing is scoped on purpose.** The 发布上线 panel runs `git add --` against `src/content`, `src/config/friends.json`, and `public/dynamic-images` only — never `git add -A`. Anything else you have in progress shows in a separate "not included" list and stays uncommitted.
+**Publishing is scoped on purpose.** The 发布上线 panel runs `git add --` against `src/content`, `src/config/friends.json`, `src/config/ads.json`, `public/dynamic-images`, and `public/slot-images` only — never `git add -A`. Anything else you have in progress shows in a separate "not included" list and stays uncommitted.
+
+**Ad slots split flat, then get translated back.** `ads.json` holds a *flat* record per slot (`side`, `position`, `title`, `imgSrc`, `linkText`, `fullBleed`, …), not the theme's nested `AdConfig`. Flat is what the admin can serialize field-by-field and validate per-input; `sidebarConfig.ts` converts flat → nested via `toAdWidget()` and `adsFor(side)`, dropping empty fields so `Advertisement.astro` still takes its own "not configured → don't render" branches. The component itself is untouched upstream code.
+
+`displayCount` ("show this ad at most N times per visitor") is deliberately not exposed; the server hardcodes `-1`. Its localStorage key is `"ad-display-" + widgetId`, and `widgetId` is `Math.random()` generated per render and baked into static HTML — so the count is per-page, resets on every build, and increments again on Swup navigations. It cannot limit anything. The theme's own two example slots also shipped `-1`.
+
+Validation only fires on slots with `enabled: true`. A slot with nothing but a note is a legitimate draft — it never reaches the page — so half-finished rows save fine and only going live requires a title, body, or image.
 
 `friends.json` is written field-by-field rather than via `JSON.stringify(x, null, "\t")`, which would expand `"tags": ["Blog"]` onto three lines and fight Biome's formatter on every save.
 
