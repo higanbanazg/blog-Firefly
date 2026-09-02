@@ -5,7 +5,7 @@ description: "3X-UI面板中转挂载个静态住宅IP ，完美解决ChatGPT、
 image: "./images/3x-ui-mian-ban-zhong-zhuan-da-zai-chun-jing-jing-tai-zhu-zhai-ip-wan-mei-jie-jue-chatgpt-claude-tiktok-kua-jing-dian-shang-feng-kong-nan-ti-zhi-chi-gua-zai-duo-guo-zhu-zhai-ip/image-24.avif"
 tags: [3X-UI中转静态住宅IP，3X-UI]
 category: "教程"
-draft: true
+draft: false
 ---
 
 <span style="color: blue;">本期教程，演示通过VPS 路由功能中转挂载多个静态住宅IP ，完美解决ChatGPT、Claude、TikTok跨境电商风控难题</span>
@@ -111,5 +111,5 @@ GoMami：https://gomami.io/aff.php?aff=547
 ## 住宅IP推荐
 官网：https://cutt.ly/onesproxy
 
-## adspower指纹浏览器
+## AdsPower指纹浏览器
 官网：https://www.adspower.net/share/LqmUyi
