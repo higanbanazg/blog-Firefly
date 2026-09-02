@@ -3,7 +3,7 @@ title: 3x-ui面板中转搭载纯净静态住宅IP：完美解决ChatGPT、Claud
 published: 2026-09-02
 description: "3X-UI面板中转挂载个静态住宅IP ，完美解决ChatGPT、Claude、TikTok跨境电商风控难题"
 image: "./images/3x-ui-mian-ban-zhong-zhuan-da-zai-chun-jing-jing-tai-zhu-zhai-ip-wan-mei-jie-jue-chatgpt-claude-tiktok-kua-jing-dian-shang-feng-kong-nan-ti-zhi-chi-gua-zai-duo-guo-zhu-zhai-ip/image-24.avif"
-tags: [3X-UI中转静态住宅IP，3X-UI]
+tags: [3X-UI中转静态住宅IP, 3X-UI]
 category: "教程"
 draft: false
 ---
