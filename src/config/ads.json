@@ -29,7 +29,7 @@
 		"linkText": "了解详情",
 		"linkUrl": "https://ipnmb.com/",
 		"closable": true,
-		"fullBleed": true
+		"fullBleed": false
 	},
 	{
 		"note": "示例：纯文字形态，看着像公告卡",
