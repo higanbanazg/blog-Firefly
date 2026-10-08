@@ -34,5 +34,14 @@
 		"tags": ["Blog"],
 		"weight": 0,
 		"enabled": true
+	},
+	{
+		"title": "YuanRuixuan",
+		"imgurl": "https://rxuan.cc/usr/uploads/2026/07/621242437.png",
+		"desc": "记录生活，慢品岁月",
+		"siteurl": "https://rxuan.cc",
+		"tags": ["Blog"],
+		"weight": 0,
+		"enabled": true
 	}
 ]
