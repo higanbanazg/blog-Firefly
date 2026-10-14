@@ -109,7 +109,7 @@ DMIT：https://www.dmit.io/aff.php?aff=20605
 GoMami：https://gomami.io/aff.php?aff=547
 
 ## 住宅IP推荐
-官网：https://cutt.ly/onesproxy  新购9折邀请码：MKT103811
+官网：https://cutt.ly/onesproxy   新购9折邀请码：MKT103811  且可测试动态，脚本首先。
 
 ## AdsPower指纹浏览器
 官网：https://www.adspower.net/share/LqmUyi
