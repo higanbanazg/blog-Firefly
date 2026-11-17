@@ -157,6 +157,7 @@ pre.out {
 	background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
 	padding: 10px; overflow: auto; max-height: 220px; font-size: 12px; margin: 0;
 }
+pre.out.err { color: var(--danger); border-color: var(--danger); white-space: pre-wrap; }
 dialog {
 	border: 1px solid var(--line); border-radius: var(--radius);
 	background: var(--panel); color: var(--text); padding: 0; max-width: 620px; width: 92vw;
@@ -375,17 +376,24 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 			<span class="mono">src/config/ads.json</span>、<span class="mono">public/dynamic-images</span>、
 			<span class="mono">public/slot-images</span> 的改动并推送，Cloudflare 随后自动部署。
 		</p>
-		<div class="field">
+		<div class="field" id="commitWrap">
 			<label for="commitMsg">提交信息</label>
 			<input type="text" id="commitMsg" />
 		</div>
-		<div class="field">
+		<div class="field" id="filesWrap">
 			<span class="hint">将被提交的改动</span>
 			<pre class="out" id="publishFiles"></pre>
+		</div>
+		<div class="field hidden" id="pendingWrap">
+			<span class="hint warn">这些提交上次没推送成功，这次会一起推上去</span>
+			<pre class="out" id="publishPending"></pre>
 		</div>
 		<div class="field hidden" id="othersWrap">
 			<span class="hint warn">以下改动不在范围内，不会被提交</span>
 			<pre class="out" id="publishOthers"></pre>
+		</div>
+		<div class="field hidden" id="errorWrap">
+			<pre class="out err" id="publishError"></pre>
 		</div>
 		<div class="actions">
 			<button type="button" class="btn primary" id="btnDoPublish">提交并推送</button>

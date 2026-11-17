@@ -723,15 +723,27 @@ async function uploadImage(payload: UploadPayload): Promise<UploadResult> {
 
 /* ----------------------------------- Git ---------------------------------- */
 
-function git(args: string[]): { ok: boolean; out: string } {
+function git(args: string[], timeoutMs?: number): { ok: boolean; out: string } {
 	const r = spawnSync("git", args, {
 		cwd: ROOT,
 		encoding: "utf8",
 		maxBuffer: 16 * 1024 * 1024,
+		timeout: timeoutMs,
+		// 后台没有能交互的终端。GitHub 登录失效时 git 默认会去终端问用户名（在
+		// VSCode 终端里则是弹 GIT_ASKPASS 输入框），而 spawnSync 是同步的，整个
+		// 后台会跟着卡住、页面一直转圈。两条提问路径都关掉，让它立刻失败、把原因
+		// 带回页面。GIT_ASKPASS 必须是空串而不是删掉：空串时 git 不会再退回
+		// core.askPass / SSH_ASKPASS。
+		env: { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_ASKPASS: "" },
 	});
+	const timedOut =
+		(r.error as NodeJS.ErrnoException | undefined)?.code === "ETIMEDOUT";
+	const note = timedOut
+		? `git ${args[0]} 超过 ${Math.round((timeoutMs ?? 0) / 1000)} 秒没有完成，已中止`
+		: r.error?.message;
 	return {
 		ok: r.status === 0,
-		out: `${r.stdout || ""}${r.stderr || ""}`.trim(),
+		out: [r.stdout, r.stderr, note].filter(Boolean).join("\n").trim(),
 	};
 }
 
@@ -763,6 +775,8 @@ type GitStatus = {
 	content: string[];
 	others: string[];
 	clean: boolean;
+	// 本地已提交、还没推到 GitHub 的提交（「短哈希 标题」）
+	unpushed: string[];
 };
 
 function toLines(text: string): string[] {
@@ -770,6 +784,13 @@ function toLines(text: string): string[] {
 		.split("\n")
 		.map((line) => line.trim())
 		.filter(Boolean);
+}
+
+// 上次推送失败留下的提交靠它找出来补推。当前分支没有上游时 @{u} 解析失败，
+// 按没有算。
+function unpushedCommits(): string[] {
+	const r = git(["log", "--format=%h %s", "@{u}..HEAD"]);
+	return r.ok ? toLines(r.out) : [];
 }
 
 function gitStatus(): GitStatus {
@@ -789,7 +810,30 @@ function gitStatus(): GitStatus {
 		content,
 		others,
 		clean: content.length === 0,
+		unpushed: unpushedCommits(),
 	};
+}
+
+// 把 git push 最常见的几种失败翻译成下一步该做什么；认不出来就只给原始输出。
+function pushFailureHint(out: string): string {
+	if (
+		/could not read (Username|Password)|terminal prompts disabled|Authentication failed|Invalid username or (password|token)|returned error: 40[13]|Permission to \S+ denied/i.test(
+			out,
+		)
+	) {
+		return "GitHub 登录失效或没有推送权限：在终端运行 gh auth login 重新登录。";
+	}
+	if (/\[rejected\]|non-fast-forward|fetch first/i.test(out)) {
+		return "GitHub 上有这台电脑还没有的提交（比如在网页上改过）：先在终端运行 git pull --rebase。";
+	}
+	if (
+		/Could not resolve host|Failed to connect|Connection (timed out|refused|reset)|没有完成，已中止/i.test(
+			out,
+		)
+	) {
+		return "连不上 GitHub：检查网络或代理。";
+	}
+	return "";
 }
 
 function gitPublish(message: string): {
@@ -798,25 +842,48 @@ function gitPublish(message: string): {
 	push: string;
 } {
 	const msg = message.trim();
-	if (!msg) throw new Error("提交信息不能为空");
+	const paths = resolvedContentPaths();
+	const changed = git(["status", "--porcelain", "--", ...paths]).out !== "";
+	// 只有真要新建提交时才需要提交信息；单纯补推上次没推上去的提交不需要。
+	// 放在 git add 之前检查，免得报错时已经把文件暂存了一半。
+	if (changed && !msg) throw new Error("提交信息不能为空");
 
-	const add = git(["add", "--", ...resolvedContentPaths()]);
-	if (!add.ok) throw new Error(`git add 失败：${add.out}`);
+	let commitOut = "";
+	let staged: string[] = [];
+	if (changed) {
+		const add = git(["add", "--", ...paths]);
+		if (!add.ok) throw new Error(`git add 失败：${add.out}`);
+		staged = toLines(git(["diff", "--cached", "--name-only"]).out);
+		if (staged.length > 0) {
+			const commit = git(["commit", "-m", msg]);
+			if (!commit.ok) throw new Error(`git commit 失败：${commit.out}`);
+			commitOut = commit.out;
+		}
+	}
+	// 刚做了新提交就一定推；没有新提交时，只有本地压着没推上去的提交才推。
+	if (!commitOut && unpushedCommits().length === 0) {
+		throw new Error("没有需要提交的内容改动");
+	}
 
-	const staged = git(["diff", "--cached", "--name-only"]);
-	if (!staged.out) throw new Error("没有需要提交的内容改动");
+	// 这次推送会带上的全部文件，包括上次没推上去的那些提交里的。
+	// 没有上游分支时退回到本次暂存的文件。
+	const pending = git(["diff", "--name-only", "@{u}..HEAD"]);
+	const files = pending.ok ? toLines(pending.out) : staged;
 
-	const commit = git(["commit", "-m", msg]);
-	if (!commit.ok) throw new Error(`git commit 失败：${commit.out}`);
+	const push = git(["push"], 3 * 60 * 1000);
+	if (!push.ok) {
+		throw new Error(
+			[
+				`git push 失败：${push.out}`,
+				pushFailureHint(push.out),
+				"提交已经保存在本地，处理好之后再点一次「发布上线」就会补推，不用重做。",
+			]
+				.filter(Boolean)
+				.join("\n\n"),
+		);
+	}
 
-	const push = git(["push"]);
-	if (!push.ok) throw new Error(`git push 失败：${push.out}`);
-
-	return {
-		files: staged.out.split("\n").filter(Boolean),
-		commit: commit.out,
-		push: push.out,
-	};
+	return { files, commit: commitOut, push: push.out };
 }
 
 /* ---------------------------------- HTTP ---------------------------------- */

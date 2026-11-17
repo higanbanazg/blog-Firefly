@@ -75,9 +75,14 @@ async function reload() {
 
 function renderGit() {
 	const n = state.git.content.length;
+	// || []：ui.js 每次刷新页面都从磁盘现读，server.ts 却要重启 pnpm admin 才
+	// 生效，两边可能一新一旧，旧服务端没有 unpushed 字段。
+	const k = (state.git.unpushed || []).length;
 	const chip = $("gitChip");
-	chip.textContent = `${state.git.branch} · ${n === 0 ? "无改动" : `${n} 处未发布改动`}`;
-	chip.classList.toggle("dirty", n > 0);
+	const parts = [state.git.branch, n === 0 ? "无改动" : `${n} 处未发布改动`];
+	if (k > 0) parts.push(`${k} 个提交未推送`);
+	chip.textContent = parts.join(" · ");
+	chip.classList.toggle("dirty", n > 0 || k > 0);
 }
 
 /* -------------------------------- 文章 -------------------------------- */
@@ -800,17 +805,31 @@ $("btnPreviewAds").onclick = () => {
 
 /* -------------------------------- 发布 -------------------------------- */
 
+// 按当前 git 状态填发布对话框。内容没有新改动、只剩上次推送失败留下的提交时
+// 切到「补推」：不再要提交信息，按钮直接叫「推送」。
+function fillPublishDialog() {
+	const g = state.git;
+	const pending = g.unpushed || [];
+	$("commitWrap").classList.toggle("hidden", g.clean);
+	$("filesWrap").classList.toggle("hidden", g.clean);
+	$("publishFiles").textContent = g.content.join("\n");
+	$("pendingWrap").classList.toggle("hidden", pending.length === 0);
+	$("publishPending").textContent = pending.join("\n");
+	$("othersWrap").classList.toggle("hidden", g.others.length === 0);
+	$("publishOthers").textContent = g.others.join("\n");
+	$("btnDoPublish").textContent = g.clean ? "推送" : "提交并推送";
+}
+
 $("btnPublish").onclick = async () => {
 	try {
 		state.git = await api("/api/git");
 		renderGit();
-		if (state.git.clean) {
+		if (state.git.clean && !(state.git.unpushed || []).length) {
 			toast("没有需要发布的内容改动", "err");
 			return;
 		}
-		$("publishFiles").textContent = state.git.content.join("\n");
-		$("othersWrap").classList.toggle("hidden", state.git.others.length === 0);
-		$("publishOthers").textContent = state.git.others.join("\n");
+		fillPublishDialog();
+		$("errorWrap").classList.add("hidden");
 		$("commitMsg").value = "content: 更新文章 / 动态 / 友链";
 		$("publishDlg").showModal();
 	} catch (err) {
@@ -824,16 +843,25 @@ $("btnDoPublish").onclick = async () => {
 	const btn = $("btnDoPublish");
 	btn.disabled = true;
 	btn.textContent = "推送中…";
+	$("errorWrap").classList.add("hidden");
 	try {
 		const r = await post("/api/git/publish", { message: $("commitMsg").value });
 		$("publishDlg").close();
-		await reload();
 		toast(`已推送 ${r.files.length} 个文件，Cloudflare 开始部署`, "ok");
+		await reload().catch((err) => toast(`刷新失败：${err.message}`, "err"));
 	} catch (err) {
-		toast(err.message, "err");
+		// 错误留在对话框里，比几秒就消失的 toast 好读。推送失败时提交通常已经
+		// 落在本地，重新取一次状态，对话框就切到「补推」，处理好再点一次即可。
+		$("publishError").textContent = err.message;
+		$("errorWrap").classList.remove("hidden");
+		const fresh = await api("/api/git").catch(() => null);
+		if (fresh) {
+			state.git = fresh;
+			renderGit();
+		}
 	} finally {
 		btn.disabled = false;
-		btn.textContent = "提交并推送";
+		fillPublishDialog();
 	}
 };
 
