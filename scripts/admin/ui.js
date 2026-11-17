@@ -22,6 +22,10 @@ let state = {
 };
 let curPost = null; // 当前编辑的文章，null = 未选择
 let curDyn = null;
+// 广告位「上次保存」的快照，reload() 从服务端数据拍下，预览按钮靠它判断有没有
+// 没保存的改动。不能拿 state.ads 比：增删、排序、上传图片都会把页面上的编辑
+// （包括还没保存的）写回 state.ads，它只是重新渲染用的工作副本。
+let savedAdsKey = "[]";
 
 /* ------------------------------ 基础工具 ------------------------------ */
 
@@ -57,6 +61,7 @@ const post = (path, body) =>
 
 async function reload() {
 	state = await api("/api/state");
+	savedAdsKey = normAds(state.ads);
 	renderGit();
 	renderPostList();
 	renderDynList();
@@ -607,7 +612,7 @@ function renderAds() {
 				<button type="button" class="btn danger" data-act="del">删除</button>
 			</div>
 			<div class="grid2">
-				<div class="field"><label>备注（只在后台可见，不会出现在页面上）<input type="text" data-k="note" value="${esc(a.note)}" placeholder="例：某某云 8 月，到期 9/30" /></label></div>
+				<div class="field"><label>备注（不会显示在网站上，但仓库是公开的，GitHub 上谁都看得到）<input type="text" data-k="note" value="${esc(a.note)}" placeholder="例：某某云 8 月，到期 9/30" /></label></div>
 				<div class="field"><label>放哪一栏<select data-k="side">${options(AD_SIDES, a.side)}</select></label></div>
 				<div class="field"><label>标题栏文字<input type="text" data-k="title" value="${esc(a.title)}" /></label></div>
 				<div class="field"><label>位置<select data-k="position">${options(AD_POSITIONS, a.position)}</select></label></div>
@@ -754,6 +759,43 @@ $("btnSaveAds").onclick = async () => {
 	} catch (err) {
 		toast(err.message, "err");
 	}
+};
+
+// 广告预览不能照抄文章、动态那两个直接挂 href 的 <a>。广告有三种「明明配好了却
+// 看不见」的情况：没勾「上线」（sidebarConfig.ts 的 adsFor 按 enabled 过滤，压根
+// 不进侧边栏）、改了没保存（dev server 读的是磁盘上的 ads.json）、side 选了
+// mobile（只在 <768px 的移动端底部渲染）。直接开一个空页面只会让人以为预览坏了。
+// 函数声明而不是箭头函数：reload() 也要用它拍快照，声明会被提升。
+function normAds(list) {
+	return JSON.stringify(
+		list.map((a) =>
+			Object.fromEntries(
+				Object.entries(a)
+					.sort(([x], [y]) => (x < y ? -1 : 1))
+					.map(([k, v]) => [k, typeof v === "string" ? v.trim() : v]),
+			),
+		),
+	);
+}
+
+$("btnPreviewAds").onclick = () => {
+	const list = collectAds();
+	const live = list.filter((a) => a.enabled);
+	if (!live.length) {
+		toast(
+			"没有已上线的广告位，页面上不会出现广告——先勾上「上线」再预览",
+			"err",
+		);
+		return;
+	}
+	if (normAds(list) !== savedAdsKey) {
+		toast("有改动还没保存，预览到的会是上次保存的结果——先点「保存」", "err");
+		return;
+	}
+	if (live.every((a) => a.side === "mobile")) {
+		toast("已上线的广告都在移动端底部，浏览器窗口要窄于 768px 才看得到", "ok");
+	}
+	window.open("http://localhost:4321/", "_blank", "noopener");
 };
 
 /* -------------------------------- 发布 -------------------------------- */

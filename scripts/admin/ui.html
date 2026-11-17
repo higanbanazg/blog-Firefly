@@ -348,12 +348,14 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 			<span class="hint" id="adCount"></span>
 			<span class="spacer"></span>
 			<button type="button" class="btn" id="btnAddAd">添加一条</button>
+			<button type="button" class="btn" id="btnPreviewAds">预览</button>
 			<button type="button" class="btn primary" id="btnSaveAds">保存</button>
 		</div>
 		<div class="panel-body">
 			<p class="hint" style="margin-top:0">
 				数据写入 <span class="mono">src/config/ads.json</span>，图片存到
 				<span class="mono">public/slot-images/</span>。<b>保存只是写文件，要点「发布上线」推送、等 Cloudflare 构建完才会出现在站上。</b>
+				「预览」开的是本地 <span class="mono">localhost:4321</span>，反映最后一次<b>保存</b>的结果；未勾「上线」的广告位不会出现在页面上。
 			</p>
 			<p class="hint">
 				数组顺序就是渲染顺序，广告排在该栏所有组件之前。同一栏放两条以上会把资料卡、分类这些挤到很下面，右侧栏尤其明显。
