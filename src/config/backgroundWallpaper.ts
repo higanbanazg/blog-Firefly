@@ -80,7 +80,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			// 主页横幅主标题
 			// 原值 "Lovely firefly!" 和下面 6 条英文副标题，都是《崩坏：星穹铁道》
 			// 里流萤的角色台词，和本站内容无关且有版权顾虑，已整体替换。
-			// 要找回原文：git show 5a2f785:src/config/backgroundWallpaper.ts
+			// 要找回原文：git show 840b5fa:src/config/backgroundWallpaper.ts
 			// 这句话在逗号处拆成两行：上句当主标题（大字），下句当副标题（小字）。
 			title: "山和山不相遇",
 			// 主页横幅主标题字体大小

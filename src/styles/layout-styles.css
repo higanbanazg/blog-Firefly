@@ -21,7 +21,7 @@ html.is-page-transitioning .banner-home-text-overlay {
 /* Banner text styles */
 /* 首页横幅文案不加任何入场效果，直接静态显示。
    主题原本在这里挂了一个 banner-fadeInUp（0.3s 上移 30px 淡入），
-   一并去掉。要找回：git show ca674c7:src/styles/layout-styles.css */
+   一并去掉。要找回：git show 7721bc6:src/styles/layout-styles.css */
 .banner-title {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
     font-weight: bold;

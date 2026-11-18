@@ -60,7 +60,7 @@ const buildPlatform = detectBuildPlatform({
 // 服务器，那两个值实际上是构建容器的操作系统和架构，跟站点运行环境无关，
 // 挂在「站点信息」里会让人误以为是自有服务器，所以整段去掉。
 // 构建平台一项（显示 "Cloudflare Workers"）是准确的，保留。
-// 要找回原文：git show 0e90e80:src/components/widget/SiteInfo.astro
+// 要找回原文：git show 8847b69:src/components/widget/SiteInfo.astro
 // i18n 的 siteInfoSystem 键位保留未删，各语言文件里仍有对应文案，
 // 以后想恢复直接加回 detailItems 即可。
 
@@ -71,7 +71,7 @@ const buildPlatform = detectBuildPlatform({
 // 组件被打包进 dist/server/.prerender/chunks/，往上三层落到 dist/，那里没有
 // package.json，ENOENT 被空 catch 吞掉，静默退回 "unknown"。两行一起去掉。
 // MIT 的版权声明在仓库根目录 LICENSE 里，保留不动。
-// 要找回原文：git show 1d05ad9:src/components/widget/SiteInfo.astro
+// 要找回原文：git show 7d26365:src/components/widget/SiteInfo.astro
 // i18n 的 siteInfoBlogVersion 键位保留未删，以后想恢复加回 mainItems 即可。
 
 // 站点域名（去掉协议前缀）

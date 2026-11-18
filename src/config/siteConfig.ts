@@ -108,13 +108,13 @@ export const siteConfig: SiteConfig = {
 		// 打赏页面开关
 		// ⚠️ 和 bangumi/vndb/anime 一样：src/pages/sponsor.astro 已删除，
 		//    改回 true 只会让导航栏多出一个 404 入口。
-		//    要恢复：git show 6adcd64:src/pages/sponsor.astro > src/pages/sponsor.astro
+		//    要恢复：git show 9d67408:src/pages/sponsor.astro > src/pages/sponsor.astro
 		sponsor: false,
 		// ⚠️ bangumi / vndb / anime 三项：页面源文件已经从 src/pages/ 删除，
 		//    把这里改回 true 不会让页面回来，只会让导航栏冒出三个指向 404 的入口。
 		//    删除原因：这三页原本用的是主题作者的 Bangumi 账号(1143164) 和
 		//    Bilibili UID(38932988)，等于在本站公开他的追番/读书/游戏记录。
-		//    要恢复：git show 0a552fd:src/pages/bangumi.astro > src/pages/bangumi.astro
+		//    要恢复：git show 72e8286:src/pages/bangumi.astro > src/pages/bangumi.astro
 		//    （anime.astro、vndb.astro 同理），再把对应开关改成 true 并填自己的账号。
 		//
 		// 番组计划页面开关，含追番、游戏、书籍和音乐
@@ -129,7 +129,7 @@ export const siteConfig: SiteConfig = {
 		dynamic: true,
 		// 书签导航页面开关
 		// ⚠️ 页面、配置(booknavConfig.ts)、工具(booknav-utils.ts)、类型都已删除，
-		//    改回 true 不会让页面回来。要恢复得整套 git 还原到 6adcd64。
+		//    改回 true 不会让页面回来。要恢复得整套 git 还原到 9d67408。
 		booknav: false,
 	},
 
