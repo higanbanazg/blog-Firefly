@@ -1,21 +1,5 @@
 [
 	{
-		"note": "示例：完整形态（标题 + 图 + 文案 + 按钮）",
-		"enabled": false,
-		"side": "right",
-		"position": "top",
-		"showTitle": true,
-		"title": "赞助",
-		"content": "示例文案：这里可以写一两句广告说明，两行以内最好看。",
-		"imgSrc": "/assets/images/widget-demo.svg",
-		"imgAlt": "示例广告",
-		"imgLink": "https://example.com",
-		"linkText": "了解详情",
-		"linkUrl": "https://example.com",
-		"closable": true,
-		"fullBleed": false
-	},
-	{
 		"note": "",
 		"enabled": true,
 		"side": "right",
@@ -44,6 +28,22 @@
 		"imgLink": "https://captchaai.com/captchaai-ipfox-special-offer.GWYMJMXBDEMDILWM",
 		"linkText": "了解详情",
 		"linkUrl": "https://captchaai.com/captchaai-ipfox-special-offer.GWYMJMXBDEMDILWM",
+		"closable": true,
+		"fullBleed": false
+	},
+	{
+		"note": "",
+		"enabled": true,
+		"side": "right",
+		"position": "top",
+		"showTitle": false,
+		"title": "",
+		"content": "高纯净静态原生住宅代理ip，TK养号、社媒矩阵、AI应用",
+		"imgSrc": "/slot-images/mt731eac-e4e2914a.avif",
+		"imgAlt": "",
+		"imgLink": "https://onesproxy.shop",
+		"linkText": "了解详情",
+		"linkUrl": "https://onesproxy.shop",
 		"closable": true,
 		"fullBleed": false
 	}
